@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="RPC是远程过程调用（Remote Procedure Call）的缩写形式。RPC调用的原理其实很简单，它类似于三层构架的C&#x2F;S系统，第三方的客户程序通过接口调用RPC内部的标准或自定义函数，获得函数返回的数据进行处理后显示或打印。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用go实现一个简单的高性能RPC">
+<meta property="og:url" content="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="RPC是远程过程调用（Remote Procedure Call）的缩写形式。RPC调用的原理其实很简单，它类似于三层构架的C&#x2F;S系统，第三方的客户程序通过接口调用RPC内部的标准或自定义函数，获得函数返回的数据进行处理后显示或打印。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/v2-62b7995089963eb1477a66476c18f3f3_b.jpg">
+<meta property="og:image" content="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/v2-512d68763da8ca61ebbaa6735485a768_b.jpg">
+<meta property="article:published_time" content="2023-04-02T12:52:25.000Z">
+<meta property="article:modified_time" content="2023-04-02T12:52:25.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/v2-62b7995089963eb1477a66476c18f3f3_b.jpg">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/","path":"2023/04/02/implment-a-high-performance-rpc-with-go/","title":"使用go实现一个简单的高性能RPC"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用go实现一个简单的高性能RPC | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8ETCP%E7%9A%84TinyRPC%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">基于TCP的TinyRPC协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%B4%E9%83%A8%E6%B6%88%E6%81%AF%E7%BC%96%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">请求头部消息编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E5%A4%B4%E9%83%A8%E6%B6%88%E6%81%AF%E7%BC%96%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">响应头部消息编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%B6%88%E6%81%AF%E5%AF%B9%E8%B1%A1%E6%B1%A0"><span class="nav-number">4.</span> <span class="nav-text">头部消息对象池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO%E6%93%8D%E4%BD%9C"><span class="nav-number">5.</span> <span class="nav-text">IO操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TinyRPC%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%99%A8"><span class="nav-number">6.</span> <span class="nav-text">TinyRPC的压缩器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TinyRPC%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E5%99%A8"><span class="nav-number">7.</span> <span class="nav-text">TinyRPC的序列化器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0ClientCodec%E6%8E%A5%E5%8F%A3"><span class="nav-number">8.</span> <span class="nav-text">实现ClientCodec接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0ServerCodec%E6%8E%A5%E5%8F%A3"><span class="nav-number">9.</span> <span class="nav-text">实现ServerCodec接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TinyRPC%E7%9A%84Server"><span class="nav-number">10.</span> <span class="nav-text">TinyRPC的Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TinyRPC%E7%9A%84Client"><span class="nav-number">11.</span> <span class="nav-text">TinyRPC的Client</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/04/02/implment-a-high-performance-rpc-with-go/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用go实现一个简单的高性能RPC | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用go实现一个简单的高性能RPC
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-04-02 20:52:25" itemprop="dateCreated datePublished" datetime="2023-04-02T20:52:25+08:00">2023-04-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>RPC是远程过程调用（<strong>Remote Procedure Call</strong>）的缩写形式。RPC调用的原理其实很简单，它类似于三层构架的C&#x2F;S系统，第三方的客户程序通过接口调用RPC内部的标准或自定义函数，获得函数返回的数据进行处理后显示或打印。</p>
+<span id="more"></span>
+
+<p><a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc">TinyRPC</a> 是基于Go语言标准库 <strong>net&#x2F;rpc</strong> 扩展的远程过程调用框架，它具有以下特性：</p>
+<ul>
+<li>基于TCP传输层协议</li>
+<li>支持多种<strong>压缩格式</strong>：gzip、snappy、zlib；</li>
+<li>基于二进制的 <strong>Protocol Buffer</strong> 序列化协议：具有协议编码小及高扩展性和跨平台性；</li>
+<li>支持生成工具：TinyRPC提供的 <strong>protoc-gen-tinyrpc</strong> 插件可以帮助开发者快速定义自己的服务；</li>
+<li>支持自定义序列化器</li>
+</ul>
+<p><a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc">TinyRPC</a> 的源代码仅有一千行左右，通过学习 <strong>TinyRPC</strong> ，开发者可以得到以下收获：</p>
+<ul>
+<li>代码简洁规范</li>
+<li>涵盖大多数 Go 语言基础用法和高级特性</li>
+<li>单元测试编写技巧</li>
+<li>TCP流中处理数据包的技巧</li>
+<li>RPC框架的设计理念</li>
+</ul>
+<h2 id="基于TCP的TinyRPC协议"><a href="#基于TCP的TinyRPC协议" class="headerlink" title="基于TCP的TinyRPC协议"></a>基于TCP的TinyRPC协议</h2><p>在TinyRPC中，请求消息由TinyRPC客户端的应用程序发出，在TCP的字节流中，请求消息分为三部分：</p>
+<ul>
+<li>由可变长量编码的 <strong>uint 类型</strong>用来标识请求头的长度；</li>
+<li>基于自定义协议编码的请求头部信息</li>
+<li>基于 <strong>Protocol Buffer</strong> 协议编码的请求体，见图所示：</li>
+</ul>
+<img src="/2023/04/02/implment-a-high-performance-rpc-with-go/v2-62b7995089963eb1477a66476c18f3f3_b.jpg" class title="img">
+
+<p>在TinyRPC中，响应消息由TinyRPC服务端的应用程序响应，在TCP的字节流中，响应消息分为三部分：</p>
+<ul>
+<li>由可变长量编码的 <strong>uint 类型</strong>用来标识响应头的长度；</li>
+<li>基于自定义协议编码的响应头部信息</li>
+<li>基于 <strong>Protocol Buffer</strong> 协议编码的响应体，见图所示：</li>
+</ul>
+<img src="/2023/04/02/implment-a-high-performance-rpc-with-go/v2-512d68763da8ca61ebbaa6735485a768_b.jpg" class title="img">
+
+<p>其中ID为RPC调用的序号，以便在并发调用时，客户端根据响应的ID序号来判断RPC的调用结果；</p>
+<p>Error message为调用时发生错误的消息，若该内容为空则表示未出现RPC调用错误；</p>
+<p>在请求I&#x2F;O流中，请求体（Request Body）表示RPC的参数内容；而在响应I&#x2F;O流中，响应体（Response Body）则表示RPC调用的结果，这些Body在TinyRPC中均采用 <strong>Protocol Buffer</strong> 协议编码。</p>
+<h2 id="请求头部消息编码"><a href="#请求头部消息编码" class="headerlink" title="请求头部消息编码"></a>请求头部消息编码</h2><p>由于<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc">TinyRPC</a>的请求头部是自定义协议编码的，我们可以查看文件<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/header/header.go">header&#x2F;header.go</a>了解它的细节：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CompressType type of compressions supported by rpc</span></span><br><span class="line"><span class="keyword">type</span> CompressType <span class="type">uint16</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// RequestHeader request header structure looks like:</span></span><br><span class="line"><span class="comment">// +--------------+----------------+----------+------------+----------+</span></span><br><span class="line"><span class="comment">// | CompressType |      Method    |    ID    | RequestLen | Checksum |</span></span><br><span class="line"><span class="comment">// +--------------+----------------+----------+------------+----------+</span></span><br><span class="line"><span class="comment">// |    uint16    | uvarint+string |  uvarint |   uvarint  |  uint32  |</span></span><br><span class="line"><span class="comment">// +--------------+----------------+----------+------------+----------+</span></span><br><span class="line"><span class="keyword">type</span> RequestHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">        sync.RWMutex</span><br><span class="line">	CompressType CompressType  <span class="comment">// 它表示RPC的协议内容的压缩类型，TinyRPC支持四种压缩类型，Raw、Gzip、Snappy、Zlib</span></span><br><span class="line">	Method       <span class="type">string</span>  <span class="comment">// 方法名</span></span><br><span class="line">	ID           <span class="type">uint64</span>  <span class="comment">// 请求ID</span></span><br><span class="line">	RequestLen   <span class="type">uint32</span>  <span class="comment">// 请求体长度</span></span><br><span class="line">	Checksum     <span class="type">uint32</span>  <span class="comment">// 请求体校验 使用CRC32摘要算法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 RequestHeader 的编解码过程如下所示：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Marshal will encode request header into a byte slice</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *RequestHeader)</span></span> Marshal() []<span class="type">byte</span> &#123;</span><br><span class="line">        r.RLock()</span><br><span class="line">	<span class="keyword">defer</span> r.RUnlock()</span><br><span class="line">	idx := <span class="number">0</span></span><br><span class="line">	header := <span class="built_in">make</span>([]<span class="type">byte</span>, MaxHeaderSize+<span class="built_in">len</span>(r.Method))</span><br><span class="line">        <span class="comment">// 写入uint16类型的压缩类型</span></span><br><span class="line">	binary.LittleEndian.PutUint16(header[idx:], <span class="type">uint16</span>(r.CompressType))</span><br><span class="line">	idx += Uint16Size</span><br><span class="line">        </span><br><span class="line">	idx += writeString(header[idx:], r.Method)</span><br><span class="line">	idx += binary.PutUvarint(header[idx:], r.ID)  <span class="comment">// 写入uvarint类型的请求ID号</span></span><br><span class="line">	idx += binary.PutUvarint(header[idx:], <span class="type">uint64</span>(r.RequestLen)) <span class="comment">// 写入uvarint类型的请求体长度</span></span><br><span class="line"></span><br><span class="line">	binary.LittleEndian.PutUint32(header[idx:], r.Checksum)  <span class="comment">// 写入uvarint类型的校验码</span></span><br><span class="line">	idx += Uint32Size</span><br><span class="line">	<span class="keyword">return</span> header[:idx]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Unmarshal will decode request header into a byte slice</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *RequestHeader)</span></span> Unmarshal(data []<span class="type">byte</span>) (err <span class="type">error</span>) &#123;</span><br><span class="line">	r.Lock()</span><br><span class="line">	<span class="keyword">defer</span> r.Unlock()</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(data) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> UnmarshalError</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">			err = UnmarshalError</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	idx, size := <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">	r.CompressType = CompressType(binary.LittleEndian.Uint16(data[idx:]))</span><br><span class="line">	idx += Uint16Size <span class="comment">// 读取uint16类型的压缩类型</span></span><br><span class="line"></span><br><span class="line">	r.Method, size = readString(data[idx:])</span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	r.ID, size = binary.Uvarint(data[idx:]) <span class="comment">// 读取uvarint类型的请求ID号</span></span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	length, size := binary.Uvarint(data[idx:])   <span class="comment">// 读取uvarint类型的请求体长度</span></span><br><span class="line">	r.RequestLen = <span class="type">uint32</span>(length)</span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	r.Checksum = binary.LittleEndian.Uint32(data[idx:]) <span class="comment">// 读取uvarint类型的校验码</span></span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readString</span><span class="params">(data []<span class="type">byte</span>)</span></span> (<span class="type">string</span>, <span class="type">int</span>) &#123;</span><br><span class="line">	idx := <span class="number">0</span></span><br><span class="line">	length, size := binary.Uvarint(data)  <span class="comment">// 读取一个uvarint类型表示字符的长度</span></span><br><span class="line">	idx += size</span><br><span class="line">	str := <span class="type">string</span>(data[idx : idx+<span class="type">int</span>(length)])</span><br><span class="line">	idx += <span class="built_in">len</span>(str)</span><br><span class="line">	<span class="keyword">return</span> str, idx</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">writeString</span><span class="params">(data []<span class="type">byte</span>, str <span class="type">string</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	idx := <span class="number">0</span></span><br><span class="line">	idx += binary.PutUvarint(data, <span class="type">uint64</span>(<span class="built_in">len</span>(str)))  <span class="comment">// 写入一个uvarint类型表示字符长度</span></span><br><span class="line">	<span class="built_in">copy</span>(data[idx:], str)</span><br><span class="line">	idx += <span class="built_in">len</span>(str)</span><br><span class="line">	<span class="keyword">return</span> idx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="响应头部消息编码"><a href="#响应头部消息编码" class="headerlink" title="响应头部消息编码"></a>响应头部消息编码</h2><p>由于<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc">TinyRPC</a>的响应头部是自定义协议编码的，我们可以查看文件<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/header/header.go">header&#x2F;header.go</a>了解它的细节：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ResponseHeader request header structure looks like:</span></span><br><span class="line"><span class="comment">// +--------------+---------+----------------+-------------+----------+</span></span><br><span class="line"><span class="comment">// | CompressType |    ID   |      Error     | ResponseLen | Checksum |</span></span><br><span class="line"><span class="comment">// +--------------+---------+----------------+-------------+----------+</span></span><br><span class="line"><span class="comment">// |    uint16    | uvarint | uvarint+string |    uvarint  |  uint32  |</span></span><br><span class="line"><span class="comment">// +--------------+---------+----------------+-------------+----------+</span></span><br><span class="line"><span class="keyword">type</span> ResponseHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">        sync.RWMutex</span><br><span class="line">	CompressType CompressType  <span class="comment">// 压缩类型</span></span><br><span class="line">	ID           <span class="type">uint64</span>  <span class="comment">// 响应ID号</span></span><br><span class="line">	Error        <span class="type">string</span>  <span class="comment">// 错误信息</span></span><br><span class="line">	ResponseLen  <span class="type">uint32</span>  <span class="comment">// 响应体长度</span></span><br><span class="line">	Checksum     <span class="type">uint32</span>  <span class="comment">// 响应体校验码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 ResponseHeader 的编解码过程如下所示，与RequestHeader 的编解码过程类似：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Marshal will encode response header into a byte slice</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *ResponseHeader)</span></span> Marshal() []<span class="type">byte</span> &#123;</span><br><span class="line">        r.RLock()</span><br><span class="line">	<span class="keyword">defer</span> r.RUnlock()</span><br><span class="line">	idx := <span class="number">0</span></span><br><span class="line">	header := <span class="built_in">make</span>([]<span class="type">byte</span>, MaxHeaderSize+<span class="built_in">len</span>(r.Error))</span><br><span class="line"></span><br><span class="line">	binary.LittleEndian.PutUint16(header[idx:], <span class="type">uint16</span>(r.CompressType))</span><br><span class="line">	idx += Uint16Size</span><br><span class="line"></span><br><span class="line">	idx += binary.PutUvarint(header[idx:], r.ID)</span><br><span class="line">	idx += writeString(header[idx:], r.Error)</span><br><span class="line">	idx += binary.PutUvarint(header[idx:], <span class="type">uint64</span>(r.ResponseLen))</span><br><span class="line"></span><br><span class="line">	binary.LittleEndian.PutUint32(header[idx:], r.Checksum)</span><br><span class="line">	idx += Uint32Size</span><br><span class="line">	<span class="keyword">return</span> header[:idx]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Unmarshal will decode response header into a byte slice</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *ResponseHeader)</span></span> Unmarshal(data []<span class="type">byte</span>) (err <span class="type">error</span>) &#123;</span><br><span class="line">        r.Lock()</span><br><span class="line">	<span class="keyword">defer</span> r.Unlock()</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(data) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> UnmarshalError</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">			err = UnmarshalError</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	idx, size := <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">	r.CompressType = CompressType(binary.LittleEndian.Uint16(data[idx:]))</span><br><span class="line">	idx += Uint16Size</span><br><span class="line"></span><br><span class="line">	r.ID, size = binary.Uvarint(data[idx:])</span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	r.Error, size = readString(data[idx:])</span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	length, size := binary.Uvarint(data[idx:])</span><br><span class="line">	r.ResponseLen = <span class="type">uint32</span>(length)</span><br><span class="line">	idx += size</span><br><span class="line"></span><br><span class="line">	r.Checksum = binary.LittleEndian.Uint32(data[idx:])</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="头部消息对象池"><a href="#头部消息对象池" class="headerlink" title="头部消息对象池"></a>头部消息对象池</h2><p>为了减少创建请求头部对象 <strong>RequestHeader</strong> 和响应头部对象 <strong>ResponseHeader</strong> 的次数<strong>，</strong>我们通过为这两个结构体建立对象池，以便可以进行复用。</p>
+<p>同时我们为 <em>RequestHeader</em> 和 <em>ResponseHeader</em> 都实现了ResetHeader方法，当每次使用完这些对象时，我们调用ResetHeader让结构体内容初始化，随后再把它们丢回对象池里。</p>
+<p>代码 <a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/header/pool.go">header&#x2F;pool.go</a> 如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> header</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;sync&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	RequestPool  sync.Pool</span><br><span class="line">	ResponsePool sync.Pool</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	RequestPool = sync.Pool&#123;New: <span class="function"><span class="keyword">func</span><span class="params">()</span></span> any &#123;</span><br><span class="line">		<span class="keyword">return</span> &amp;RequestHeader&#123;&#125;</span><br><span class="line">	&#125;&#125;</span><br><span class="line">	ResponsePool = sync.Pool&#123;New: <span class="function"><span class="keyword">func</span><span class="params">()</span></span> any &#123;</span><br><span class="line">		<span class="keyword">return</span> &amp;ResponseHeader&#123;&#125;</span><br><span class="line">	&#125;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ResetHeader reset request header</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *RequestHeader)</span></span> ResetHeader() &#123;</span><br><span class="line">	h.Id = <span class="number">0</span></span><br><span class="line">	h.Checksum = <span class="number">0</span></span><br><span class="line">	h.Method = <span class="string">&quot;&quot;</span></span><br><span class="line">	h.CompressType = <span class="number">0</span></span><br><span class="line">	h.RequestLen = <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ResetHeader reset response header</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *ResponseHeader)</span></span> ResetHeader() &#123;</span><br><span class="line">	h.Error = <span class="string">&quot;&quot;</span></span><br><span class="line">	h.Id = <span class="number">0</span></span><br><span class="line">	h.CompressType = <span class="number">0</span></span><br><span class="line">	h.Checksum = <span class="number">0</span></span><br><span class="line">	h.ResponseLen = <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="IO操作"><a href="#IO操作" class="headerlink" title="IO操作"></a>IO操作</h2><p>TinyRPC的IO操作函数在<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/codec/io.go">codec&#x2F;io.go</a>中，其中 <em>sendFrame</em> 函数会向IO中写入<strong>uvarint</strong>类型的 <em>size</em> ，表示要发送数据的长度，随后将该字节slice类型的数据 <em>data</em> 写入IO流中。</p>
+<ul>
+<li>若写入数据的长度为 0 ，此时<em>sendFrame</em> 函数会向IO流写入uvarint类型的 0 值；</li>
+<li>若写入数据的长度大于 0 ，此时<em>sendFrame</em> 函数会向IO流写入uvarint类型的 <em>len(data)</em> 值，随后将该字节串的数据 data 写入IO流中。</li>
+</ul>
+<p>代码如下所示：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendFrame</span><span class="params">(w io.Writer, data []<span class="type">byte</span>)</span></span> (err <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">var</span> size [binary.MaxVarintLen64]<span class="type">byte</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> data == <span class="literal">nil</span> || <span class="built_in">len</span>(data) == <span class="number">0</span> &#123;</span><br><span class="line">		n := binary.PutUvarint(size[:], <span class="type">uint64</span>(<span class="number">0</span>))</span><br><span class="line">		<span class="keyword">if</span> err = write(w, size[:n]); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	n := binary.PutUvarint(size[:], <span class="type">uint64</span>(<span class="built_in">len</span>(data)))</span><br><span class="line">	<span class="keyword">if</span> err = write(w, size[:n]); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err = write(w, data); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">write</span><span class="params">(w io.Writer, data []<span class="type">byte</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">for</span> index := <span class="number">0</span>; index &lt; <span class="built_in">len</span>(data); &#123;</span><br><span class="line">		n, err := w.Write(data[index:])</span><br><span class="line">		<span class="keyword">if</span> _, ok := err.(net.Error); !ok &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		index += n</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>recvFrame</em> 函数与<em>sendFrame</em> 函数类似，首先会向IO中读入<strong>uvarint</strong>类型的 <em>size</em> ，表示要接收数据的长度，随后将该从IO流中读取该 <em>size</em> 长度字节串。</p>
+<blockquote>
+<p>注意，由于 codec 层会传入一个<strong>bufio</strong>类型的结构体，<strong>bufio</strong>类型实现了有缓冲的IO操作，以便减少IO在用户态与内核态拷贝的次数。</p>
+</blockquote>
+<ul>
+<li>若 <em>recvFrame</em> 函数从IO流读取<strong>uvarint</strong>类型的 <em>size</em> 值大于0，随后 <em>recvFrame</em> 将该从IO流中读取该 <em>size</em> 长度字节串。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">recvFrame</span><span class="params">(r io.Reader)</span></span> (data []<span class="type">byte</span>, err <span class="type">error</span>) &#123;</span><br><span class="line">	size, err := binary.ReadUvarint(r.(io.ByteReader))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> size != <span class="number">0</span> &#123;</span><br><span class="line">		data = <span class="built_in">make</span>([]<span class="type">byte</span>, size)</span><br><span class="line">		<span class="keyword">if</span> err = read(r, data); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> data, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">read</span><span class="params">(r io.Reader, data []<span class="type">byte</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">for</span> index := <span class="number">0</span>; index &lt; <span class="built_in">len</span>(data); &#123;</span><br><span class="line">		n, err := r.Read(data[index:])</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> _, ok := err.(net.Error); !ok &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		index += n</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="TinyRPC的压缩器"><a href="#TinyRPC的压缩器" class="headerlink" title="TinyRPC的压缩器"></a>TinyRPC的压缩器</h2><p>TinyRPC的压缩器代码部分很短，RawCompressor、GzipCompressor、SnappyCompressor、ZlibCompressor压缩器均实现了Compressor 接口，代码<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/compressor/compressor.go">compressor&#x2F;compressor.go</a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> CompressType <span class="type">int32</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	Raw CompressType = <span class="literal">iota</span></span><br><span class="line">	Gzip</span><br><span class="line">	Snappy</span><br><span class="line">	Zlib</span><br><span class="line">)</span><br><span class="line"><span class="comment">// Compressors 四种压缩器的实现</span></span><br><span class="line"><span class="keyword">var</span> Compressors = <span class="keyword">map</span>[CompressType]Compressor&#123;</span><br><span class="line">	Raw:    RawCompressor&#123;&#125;,</span><br><span class="line">	Gzip:   GzipCompressor&#123;&#125;,</span><br><span class="line">	Snappy: SnappyCompressor&#123;&#125;,</span><br><span class="line">	Zlib:   ZlibCompressor&#123;&#125;,</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Compressor 压缩器接口</span></span><br><span class="line"><span class="keyword">type</span> Compressor <span class="keyword">interface</span> &#123;</span><br><span class="line">	Zip([]<span class="type">byte</span>) ([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line">	Unzip([]<span class="type">byte</span>) ([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="TinyRPC的序列化器"><a href="#TinyRPC的序列化器" class="headerlink" title="TinyRPC的序列化器"></a>TinyRPC的序列化器</h2><p>TinyRPC的序列化器的代码部分也很短，ProtoSerializer实现了Serializer接口，它是基于Protocol Buffer的序列化协议，代码<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/serializer/serializer.go">serializer&#x2F;serializer.go</a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SerializeType <span class="type">int32</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Serializer <span class="keyword">interface</span> &#123;</span><br><span class="line">	Marshal(message any) ([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line">	Unmarshal(data []<span class="type">byte</span>, message any) <span class="type">error</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现ClientCodec接口"><a href="#实现ClientCodec接口" class="headerlink" title="实现ClientCodec接口"></a>实现ClientCodec接口</h2><p>由于TinyRPC是<strong>基于标准库net&#x2F;rpc</strong>扩展的，所以TinyRPC在codec层需要实现<strong>net&#x2F;rpc</strong>的<strong>ClientCodec</strong>接口，我们先看看<strong>ClientCodec</strong>的代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 文件 src/net/rpc/server.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ClientCodec <span class="keyword">interface</span> &#123;</span><br><span class="line">	WriteRequest(*Request, any) <span class="type">error</span></span><br><span class="line">	ReadResponseHeader(*Response) <span class="type">error</span></span><br><span class="line">	ReadResponseBody(any) <span class="type">error</span></span><br><span class="line"></span><br><span class="line">	Close() <span class="type">error</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Request 标准库里的请求体结构</span></span><br><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">	ServiceMethod <span class="type">string</span> </span><br><span class="line">	Seq           <span class="type">uint64</span> </span><br><span class="line">	next          *Request </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Response 标准库里的响应结构</span></span><br><span class="line"><span class="keyword">type</span> Response <span class="keyword">struct</span> &#123;</span><br><span class="line">	ServiceMethod <span class="type">string</span> </span><br><span class="line">	Seq           <span class="type">uint64</span> </span><br><span class="line">	Error         <span class="type">string</span> </span><br><span class="line">	next          *Response </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中ClientCodec接口包括<strong>写请求</strong>、<strong>读响应头部</strong>和<strong>读响应体</strong>，我们建立一个clientCode的结构体用来实现ClientCodec接口：</p>
+<p>代码 <a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/codec/client.go">codec&#x2F;client.go</a> 如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> clientCodec <span class="keyword">struct</span> &#123;</span><br><span class="line">	r io.Reader</span><br><span class="line">	w io.Writer</span><br><span class="line">	c io.Closer</span><br><span class="line"></span><br><span class="line">	compressor compressor.CompressType <span class="comment">// rpc compress type(raw,gzip,snappy,zlib)</span></span><br><span class="line">	serializer serializer.Serializer</span><br><span class="line">	response   header.ResponseHeader <span class="comment">// rpc response header</span></span><br><span class="line">	mutex      sync.Mutex            <span class="comment">// protect pending map</span></span><br><span class="line">	pending    <span class="keyword">map</span>[<span class="type">uint64</span>]<span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <em>compressor</em> 表示压缩类型，<em>serializer</em> 表示使用的序列化器，<em>response</em> 是响应的头部，<em>mutex</em> 是用于保护 <em>pending</em> 的互斥锁；</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NewClientCodec Create a new client codec</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewClientCodec</span><span class="params">(conn io.ReadWriteCloser,</span></span></span><br><span class="line"><span class="params"><span class="function">	compressType compressor.CompressType, serializer serializer.Serializer)</span></span> rpc.ClientCodec &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> &amp;clientCodec&#123;</span><br><span class="line">		r:          bufio.NewReader(conn),</span><br><span class="line">		w:          bufio.NewWriter(conn),</span><br><span class="line">		c:          conn,</span><br><span class="line">		compressor: compressType,</span><br><span class="line">		serializer: serializer,</span><br><span class="line">		pending:    <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">uint64</span>]<span class="type">string</span>),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的读写IO分别使用 <em>bufio.NewReader</em> 和 <em>bufio.NewWriter</em> 构造，通过缓冲IO来提高RPC的读写性能；</p>
+<p>首先 <em>clientCode</em> 结构体实现了 <em><strong>ClientCodec</strong></em> 接口的<em><strong>WriteRequest</strong></em> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *clientCodec)</span></span> WriteRequest(r *rpc.Request, param any) <span class="type">error</span> &#123;</span><br><span class="line">c.mutex.Lock()</span><br><span class="line">	c.pending[r.Seq] = r.ServiceMethod</span><br><span class="line">	c.mutex.Unlock()</span><br><span class="line">          <span class="comment">// 判断压缩器是否存在</span></span><br><span class="line">	<span class="keyword">if</span> _, ok := compressor.Compressors[c.compressor]; !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> NotFoundCompressorError</span><br><span class="line">	&#125;</span><br><span class="line">	reqBody, err := c.serializer.Marshal(param) <span class="comment">// 用序列化器进行编码</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 压缩</span></span><br><span class="line">	compressedReqBody, err := compressor.Compressors[c.compressor].Zip(reqBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 从请求头部对象池取出请求头</span></span><br><span class="line">	h := header.RequestPool.Get().(*header.RequestHeader)</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		h.ResetHeader()</span><br><span class="line">		header.RequestPool.Put(h)</span><br><span class="line">	&#125;()</span><br><span class="line">	h.ID = r.Seq</span><br><span class="line">	h.Method = r.ServiceMethod</span><br><span class="line">	h.RequestLen = <span class="type">uint32</span>(<span class="built_in">len</span>(compressedReqBody))</span><br><span class="line">	h.CompressType = header.CompressType(c.compressor)</span><br><span class="line">	h.Checksum = crc32.ChecksumIEEE(compressedReqBody)</span><br><span class="line">        <span class="comment">// 发送请求头</span></span><br><span class="line">	<span class="keyword">if</span> err := sendFrame(c.w, h.Marshal()); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 发送请求体</span></span><br><span class="line">	<span class="keyword">if</span> err := write(c.w, compressedReqBody); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	c.w.(*bufio.Writer).Flush()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 *<strong>ClientCodec*</strong> 接口的 *<strong>ReadResponseHeader*</strong> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *clientCodec)</span></span> ReadResponseHeader(r *rpc.Response) <span class="type">error</span> &#123;</span><br><span class="line">        c.response.ResetHeader() <span class="comment">// 重置clientCodec的响应头部</span></span><br><span class="line">	data, err := recvFrame(c.r) <span class="comment">// 读取请求头字节串  </span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	err = c.response.Unmarshal(data) <span class="comment">// 用序列化器继续解码</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	c.mutex.Lock()</span><br><span class="line">	r.Seq = c.response.ID <span class="comment">// 填充 r.Seq  </span></span><br><span class="line">	r.Error = c.response.Error <span class="comment">// 填充 r.Error</span></span><br><span class="line">	r.ServiceMethod = c.pending[r.Seq]  <span class="comment">// 根据序号填充 r.ServiceMethod</span></span><br><span class="line">	<span class="built_in">delete</span>(c.pending, r.Seq) <span class="comment">// 删除pending里的序号  </span></span><br><span class="line">	c.mutex.Unlock()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 *<strong>ClientCodec*</strong> 接口的 *<strong>ReadResponseBody*</strong> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *clientCodec)</span></span> ReadResponseBody(param any) <span class="type">error</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> param == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> c.response.ResponseLen != <span class="number">0</span> &#123;   <span class="comment">// 废弃多余部分</span></span><br><span class="line">			<span class="keyword">if</span> err := read(c.r, <span class="built_in">make</span>([]<span class="type">byte</span>, c.response.ResponseLen)); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 根据响应体长度，读取该长度的字节串</span></span><br><span class="line">	respBody := <span class="built_in">make</span>([]<span class="type">byte</span>, c.response.ResponseLen)</span><br><span class="line">	err := read(c.r, respBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 校验</span></span><br><span class="line">	<span class="keyword">if</span> c.response.Checksum != <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> crc32.ChecksumIEEE(respBody) != c.response.Checksum &#123;</span><br><span class="line">			<span class="keyword">return</span> UnexpectedChecksumError</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 判断压缩器是否存在</span></span><br><span class="line">	<span class="keyword">if</span> _, ok := compressor.Compressors[c.response.GetCompressType()]; !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> NotFoundCompressorError</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 解压</span></span><br><span class="line">	resp, err := compressor.Compressors[c.response.GetCompressType()].Unzip(respBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 反序列化</span></span><br><span class="line">	<span class="keyword">return</span> c.serializer.Unmarshal(resp, param)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现ServerCodec接口"><a href="#实现ServerCodec接口" class="headerlink" title="实现ServerCodec接口"></a>实现ServerCodec接口</h2><p>TinyRPC在codec层还需要实现<strong>net&#x2F;rpc</strong>的<strong>ServerCodec</strong>接口</p>
+<p><em>ServerCodec</em> 的接口和 <em>ClientCodec</em> 接口十分类似：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ServerCodec <span class="keyword">interface</span> &#123;</span><br><span class="line">	ReadRequestHeader(*Request) <span class="type">error</span></span><br><span class="line">	ReadRequestBody(any) <span class="type">error</span></span><br><span class="line">	WriteResponse(*Response, any) <span class="type">error</span></span><br><span class="line">	Close() <span class="type">error</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <em>ServerCodec</em> 接口包括<strong>写响应</strong>、<strong>读请求头部</strong>和<strong>读请求体</strong>，我们建立一个 <em>serverCodec</em> 的结构体用来实现 <em>ServerCodec</em> 接口，代码<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/codec/server.go">codec&#x2F;server.go</a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> serverCodec <span class="keyword">struct</span> &#123;</span><br><span class="line">	r io.Reader</span><br><span class="line">	w io.Writer</span><br><span class="line">	c io.Closer</span><br><span class="line"></span><br><span class="line">	request    header.RequestHeader</span><br><span class="line">	serializer serializer.Serializer</span><br><span class="line">	mutex      sync.Mutex <span class="comment">// protects seq, pending</span></span><br><span class="line">	seq        <span class="type">uint64</span></span><br><span class="line">	pending    <span class="keyword">map</span>[<span class="type">uint64</span>]<span class="type">uint64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewServerCodec Create a new server codec</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewServerCodec</span><span class="params">(conn io.ReadWriteCloser, serializer serializer.Serializer)</span></span> rpc.ServerCodec &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;serverCodec&#123;</span><br><span class="line">		r:          bufio.NewReader(conn),</span><br><span class="line">		w:          bufio.NewWriter(conn),</span><br><span class="line">		c:          conn,</span><br><span class="line">		serializer: serializer,</span><br><span class="line">		pending:    <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">uint64</span>]<span class="type">uint64</span>),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>是不是和刚才的 <em>clientCode</em> 结构体<strong>神似</strong>？</p>
+<p>首先， <em>serverCodec</em> 结构体实现了 <em>ServerCodec</em> 接口的 <em>ReadRequestHeader</em>方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *serverCodec)</span></span> ReadRequestHeader(r *rpc.Request) <span class="type">error</span> &#123;</span><br><span class="line">	s.request.ResetHeader()  <span class="comment">// 重置serverCodec结构体的请求头部</span></span><br><span class="line">	data, err := recvFrame(s.r) <span class="comment">// 读取请求头部字节串</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	err = s.request.Unmarshal(data)   <span class="comment">//将字节串反序列化</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	s.mutex.Lock()</span><br><span class="line">	s.seq++  <span class="comment">// 序号自增</span></span><br><span class="line">	s.pending[s.seq] = s.request.ID <span class="comment">// 自增序号与请求头部的ID进行绑定</span></span><br><span class="line">	r.ServiceMethod = s.request.Method  <span class="comment">// 填充 r.ServiceMethod </span></span><br><span class="line">	r.Seq = s.seq<span class="comment">// 填充 r.Seq  </span></span><br><span class="line">	s.mutex.Unlock()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 <em>ServerCodec</em> 接口的 <em>ReadRequestBody</em> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *serverCodec)</span></span> ReadRequestBody(x any) <span class="type">error</span> &#123;</span><br><span class="line">       <span class="keyword">if</span> param == <span class="literal">nil</span> &#123; </span><br><span class="line">		<span class="keyword">if</span> s.request.RequestLen != <span class="number">0</span> &#123;  <span class="comment">// 废弃多余部分</span></span><br><span class="line">			<span class="keyword">if</span> err := read(s.r, <span class="built_in">make</span>([]<span class="type">byte</span>, s.request.RequestLen)); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	reqBody := <span class="built_in">make</span>([]<span class="type">byte</span>, s.request.RequestLen)</span><br><span class="line">        <span class="comment">// 根据请求体的大小，读取该大小的字节串</span></span><br><span class="line">	err := read(s.r, reqBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 校验</span></span><br><span class="line">	<span class="keyword">if</span> s.request.Checksum != <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> crc32.ChecksumIEEE(reqBody) != s.request.Checksum &#123;</span><br><span class="line">			<span class="keyword">return</span> UnexpectedChecksumError</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">         <span class="comment">// 判断压缩器是否存在</span></span><br><span class="line">	<span class="keyword">if</span> _, ok := compressor.</span><br><span class="line">		Compressors[s.request.GetCompressType()]; !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> NotFoundCompressorError</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 解压</span></span><br><span class="line">	req, err := compressor.</span><br><span class="line">		Compressors[s.request.GetCompressType()].Unzip(reqBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 把字节串反序列化</span></span><br><span class="line">	<span class="keyword">return</span> s.serializer.Unmarshal(req, param)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 <em>ServerCodec</em> 接口的 <em>WriteResponse</em> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *serverCodec)</span></span> WriteResponse(r *rpc.Response, param any) <span class="type">error</span> &#123;</span><br><span class="line">	s.mutex.Lock()</span><br><span class="line">	id, ok := s.pending[r.Seq]</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		s.mutex.Unlock()</span><br><span class="line">		<span class="keyword">return</span> InvalidSequenceError</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">delete</span>(s.pending, r.Seq)</span><br><span class="line">	s.mutex.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> r.Error != <span class="string">&quot;&quot;</span> &#123;   <span class="comment">// 如果RPC调用结果有误，把param置为nil</span></span><br><span class="line">		param = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">         <span class="comment">// 判断压缩器是否存在</span></span><br><span class="line">	<span class="keyword">if</span> _, ok := compressor.</span><br><span class="line">		Compressors[s.request.GetCompressType()]; !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> NotFoundCompressorError</span><br><span class="line">	&#125;</span><br><span class="line">        </span><br><span class="line">	<span class="keyword">var</span> respBody []<span class="type">byte</span></span><br><span class="line">	<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">	<span class="keyword">if</span> param != <span class="literal">nil</span> &#123;</span><br><span class="line">		respBody, err = s.serializer.Marshal(param) <span class="comment">// 反序列化</span></span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 压缩</span></span><br><span class="line">	compressedRespBody, err := compressor.</span><br><span class="line">		Compressors[s.request.GetCompressType()].Zip(respBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	h := header.ResponsePool.Get().(*header.ResponseHeader)</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		h.ResetHeader()</span><br><span class="line">		header.ResponsePool.Put(h)</span><br><span class="line">	&#125;()</span><br><span class="line">	h.ID = id</span><br><span class="line">	h.Error = r.Error</span><br><span class="line">	h.ResponseLen = <span class="type">uint32</span>(<span class="built_in">len</span>(compressedRespBody))</span><br><span class="line">	h.Checksum = crc32.ChecksumIEEE(compressedRespBody)</span><br><span class="line">	h.CompressType = s.request.CompressType</span><br><span class="line">        <span class="comment">// 发送响应头</span></span><br><span class="line">	<span class="keyword">if</span> err = sendFrame(s.w, h.Marshal()); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">        <span class="comment">// 发送响应体</span></span><br><span class="line">	<span class="keyword">if</span> err = write(s.w, compressedRespBody); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	s.w.(*bufio.Writer).Flush()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="TinyRPC的Server"><a href="#TinyRPC的Server" class="headerlink" title="TinyRPC的Server"></a>TinyRPC的Server</h2><p>TinyRPC的服务端非常简单，把标准库 <strong>net&#x2F;rpc</strong> 的 <strong>Server</strong> 结构包装了一层，其中 <em>ServeCodec</em> 使用的是TinyRPC的编解码器，代码<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/server.go">server.go</a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">	*rpc.Server</span><br><span class="line">	serializer.Serializer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span></span> Serve(lis net.Listener) &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		conn, err := lis.Accept()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Print(<span class="string">&quot;tinyrpc.Serve: accept:&quot;</span>, err.Error())</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">go</span> s.Server.ServeCodec(codec.NewServerCodec(conn, s.Serializer)))  <span class="comment">// 使用TinyRPC的解码器</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="TinyRPC的Client"><a href="#TinyRPC的Client" class="headerlink" title="TinyRPC的Client"></a>TinyRPC的Client</h2><p>TinyRPC的客户端也很简单，把标准库 <strong>net&#x2F;rpc</strong> 的 <strong>Client</strong> 结构包装了一层，其中 <em>ClientCodec</em> 使用的是TinyRPC的编解码器，代码<a href="https://link.zhihu.com/?target=https://github.com/zehuamama/tinyrpc/blob/main/client.go">client.go</a>：</p>
+<blockquote>
+<p>注意：TinyRPC Client使用一种Go语言常用的设计模式：功能选项模式</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Client rpc client based on net/rpc implementation</span></span><br><span class="line"><span class="keyword">type</span> Client <span class="keyword">struct</span> &#123;</span><br><span class="line">	*rpc.Client</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Option provides options for rpc</span></span><br><span class="line"><span class="keyword">type</span> Option <span class="function"><span class="keyword">func</span><span class="params">(o *options)</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> options <span class="keyword">struct</span> &#123;</span><br><span class="line">	compressType compressor.CompressType</span><br><span class="line">	serializer   serializer.Serializer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// WithCompress set client compression format</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithCompress</span><span class="params">(c compressor.CompressType)</span></span> Option &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(o *options)</span></span> &#123;</span><br><span class="line">		o.compressType = c</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// WithSerializer set client serializer</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithSerializer</span><span class="params">(serializer serializer.Serializer)</span></span> Option &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(o *options)</span></span> &#123;</span><br><span class="line">		o.serializer = serializer</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewClient Create a new rpc client</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewClient</span><span class="params">(conn io.ReadWriteCloser, opts ...Option)</span></span> *Client &#123;</span><br><span class="line">	options := options&#123;</span><br><span class="line">		compressType: compressor.Raw,</span><br><span class="line">		serializer:   serializer.Proto,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, option := <span class="keyword">range</span> opts &#123;</span><br><span class="line">		option(&amp;options)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> &amp;Client&#123;rpc.NewClientWithCodec(</span><br><span class="line">		codec.NewClientCodec(conn, options.compressType, options.serializer))&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Call synchronously calls the rpc function</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> Call(serviceMethod <span class="type">string</span>, args <span class="keyword">interface</span>&#123;&#125;, reply <span class="keyword">interface</span>&#123;&#125;) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.Client.Call(serviceMethod, args, reply)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AsyncCall asynchronously calls the rpc function and returns a channel of *rpc.Call</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> AsyncCall(serviceMethod <span class="type">string</span>, args <span class="keyword">interface</span>&#123;&#125;, reply <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">chan</span> *rpc.Call &#123;</span><br><span class="line">	<span class="keyword">return</span> c.Go(serviceMethod, args, reply, <span class="literal">nil</span>).Done</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>作者：马丸子<br>链接：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/499098284">https://zhuanlan.zhihu.com/p/499098284</a><br>来源：知乎</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"><i class="fa fa-tag"></i> go</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/23/how-to-fix-Incorrect-credentials-Request-response-401-Unauthorized/" rel="prev" title="how to fix Incorrect credentials. Request response. 401 Unauthorized">
+                  <i class="fa fa-chevron-left"></i> how to fix Incorrect credentials. Request response. 401 Unauthorized
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
