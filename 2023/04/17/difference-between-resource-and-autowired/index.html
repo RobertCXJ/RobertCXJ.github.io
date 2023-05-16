@@ -20,28 +20,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="记录了git使用过程中遇到的问题以及解决方法">
+    <meta name="description" content="使用方法以及区别联系">
 <meta property="og:type" content="article">
-<meta property="og:title" content="git使用过程中遇到的问题以及解决方法">
-<meta property="og:url" content="https://robertchen.cn/2023/05/09/the-usage-of-git/index.html">
+<meta property="og:title" content="理清@Autowired和@Resource的区别和联系">
+<meta property="og:url" content="https://robertchen.cn/2023/04/17/difference-between-resource-and-autowired/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
-<meta property="og:description" content="记录了git使用过程中遇到的问题以及解决方法">
+<meta property="og:description" content="使用方法以及区别联系">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-05-09T09:09:13.000Z">
-<meta property="article:modified_time" content="2023-05-09T09:09:13.000Z">
+<meta property="article:published_time" content="2023-04-17T14:27:13.000Z">
+<meta property="article:modified_time" content="2023-05-16T14:27:13.000Z">
 <meta property="article:author" content="Robert">
-<meta property="article:tag" content="git">
+<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://robertchen.cn/2023/05/09/the-usage-of-git/">
+<link rel="canonical" href="https://robertchen.cn/2023/04/17/difference-between-resource-and-autowired/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/05/09/the-usage-of-git/","path":"2023/05/09/the-usage-of-git/","title":"git使用过程中遇到的问题以及解决方法"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/04/17/difference-between-resource-and-autowired/","path":"2023/04/17/difference-between-resource-and-autowired/","title":"理清@Autowired和@Resource的区别和联系"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>git使用过程中遇到的问题以及解决方法 | Robert's blog</title>
+<title>理清@Autowired和@Resource的区别和联系 | Robert's blog</title>
   
 
 
@@ -141,7 +142,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#git-stash%E6%9A%82%E5%AD%98%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">git stash暂存文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-pull%E6%8B%89%E5%8F%96%E5%88%86%E6%94%AF"><span class="nav-number">2.</span> <span class="nav-text">git pull拉取分支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-pull%E5%92%8Cgit-fetch%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">git pull和git fetch的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E7%9A%84%E4%B8%8D%E5%90%8C"><span class="nav-number">3.1.</span> <span class="nav-text">目的不同</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E9%80%94%E4%B8%8D%E5%90%8C"><span class="nav-number">3.2.</span> <span class="nav-text">用途不同</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%B3%95%E4%B8%8D%E5%90%8C"><span class="nav-number">3.3.</span> <span class="nav-text">用法不同</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9C%E7%AB%AF%E8%B7%9F%E8%B8%AA%E5%88%86%E6%94%AF%E4%B8%8D%E5%90%8C"><span class="nav-number">3.4.</span> <span class="nav-text">远端跟踪分支不同</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E7%B3%BB"><span class="nav-number">1.</span> <span class="nav-text">联系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFbyType%EF%BC%8C%E4%BB%80%E4%B9%88%E6%98%AFbyName"><span class="nav-number">2.1.</span> <span class="nav-text">什么是byType，什么是byName</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autowird%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">@Autowird注解的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Resource%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">@Resource注解的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Resource%E8%A3%85%E9%85%8D%E9%A1%BA%E5%BA%8F"><span class="nav-number">4.1.</span> <span class="nav-text">@Resource装配顺序</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -156,18 +157,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -198,7 +199,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/05/09/the-usage-of-git/">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/04/17/difference-between-resource-and-autowired/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/spike.jpg">
@@ -211,12 +212,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="git使用过程中遇到的问题以及解决方法 | Robert's blog">
+      <meta itemprop="name" content="理清@Autowired和@Resource的区别和联系 | Robert's blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          git使用过程中遇到的问题以及解决方法
+          理清@Autowired和@Resource的区别和联系
         </h1>
 
         <div class="post-meta-container">
@@ -227,7 +228,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-05-09 17:09:13" itemprop="dateCreated datePublished" datetime="2023-05-09T17:09:13+08:00">2023-05-09</time>
+      <time title="创建时间：2023-04-17 22:27:13" itemprop="dateCreated datePublished" datetime="2023-04-17T22:27:13+08:00">2023-04-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-05-16 22:27:13" itemprop="dateModified" datetime="2023-05-16T22:27:13+08:00">2023-05-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -235,7 +243,11 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/git/" itemprop="url" rel="index"><span itemprop="name">git</span></a>
+          <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/java/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
         </span>
     </span>
 
@@ -256,21 +268,44 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>记录了git使用过程中遇到的问题以及解决方法</p>
+        <p>使用方法以及区别联系</p>
 <span id="more"></span>
 
-<h3 id="git-stash暂存文件"><a href="#git-stash暂存文件" class="headerlink" title="git stash暂存文件"></a>git stash暂存文件</h3><p>当前分支还未完成所有的工作，然而又需要切换分支或者不能继续工作，可以采用<code>git stash</code>命令，切换回来以后再采用<code>git stash pop</code>命令切回</p>
-<p>在idea 2020版中使用<code>git stash</code>命令有几率丢失文件</p>
-<p>所以也可以commit 之后再切换分支然后再reset</p>
-<h3 id="git-pull拉取分支"><a href="#git-pull拉取分支" class="headerlink" title="git pull拉取分支"></a>git pull拉取分支</h3><p>在团队开发时，可能出现增加了其他文件和修改统一文件的情况，此时需要<code>git pull</code>先合并再push，若不想合并则先fetch</p>
-<h3 id="git-pull和git-fetch的区别"><a href="#git-pull和git-fetch的区别" class="headerlink" title="git pull和git fetch的区别"></a>git pull和git fetch的区别</h3><h4 id="目的不同"><a href="#目的不同" class="headerlink" title="目的不同"></a>目的不同</h4><p><strong>git fetch</strong>：从远程获取最新版本到本地，但不会自动 merge，用于从远程跟踪分支下载和查看其他人完成的最新提交，但不将这些提交合并到本地存储库中。它从远程存储库中获取更改并将其存储在本地存储库中。</p>
-<p><strong>git pull</strong>：从远程获取最新版本并 merge 到本地，它会自动将提交合并到您的本地存储库中，而无需查看提交。</p>
-<h4 id="用途不同"><a href="#用途不同" class="headerlink" title="用途不同"></a>用途不同</h4><p><strong>git fetch</strong>：Fetch 只是通过将提交从远程存储库传输到本地存储库来使远程存储库的本地副本保持最新。将提交导入到本地分支将允许您跟上其他人所做的更改。</p>
-<p><strong>git pull</strong>：Pull 将更改引入本地代码存储库，以使用远程存储库更新本地存储库。</p>
-<h4 id="用法不同"><a href="#用法不同" class="headerlink" title="用法不同"></a>用法不同</h4><p><strong>git fetch</strong>：当您想要查看其他人正在处理的内容时，Fetch 命令非常有用，这使您可以在将更改与本地存储库集成之前轻松查看其他开发人员推送的提交。您可以通过使用命令“git fetch ”来做到这一点，该命令从远程存储库中获取所有分支。</p>
-<p><strong>git pull</strong>：您可以使用命令“git pull ”来执行拉取，该命令检索分支的远程副本并将其与本地副本合并。这与使用命令“git fetch ”后跟“git merge ”完全相同。</p>
-<h4 id="远端跟踪分支不同"><a href="#远端跟踪分支不同" class="headerlink" title="远端跟踪分支不同"></a>远端跟踪分支不同</h4><p><strong>git fetch</strong>：Git fetch能够直接更改远端跟踪分支。</p>
-<p><strong>git pull</strong>：git pull无法直接对远程跟踪分支操作，我们必须先切回本地分支然后创建一个新的commit提交。</p>
+<h3 id="联系"><a href="#联系" class="headerlink" title="联系"></a>联系</h3><p>@Autowired和@Resource注解都是作为bean对象注入的时候使用的<br>两者都可以声明在字段和setter方法上<br>注意：如果声明在字段上，那么就不需要再写setter方法。但是本质上，该对象还是作为set方法的实参，通过执行set方法注入，只是省略了setter方法罢了</p>
+<h3 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h3><p>@Autowired注解是Spring提供的，而@Resource注解是J2EE本身提供的，JDK1.6之后才能使用<br>@Autowird注解默认通过byType方式注入，而@Resource注解默认通过byName方式注入<br>@Autowired注解注入的对象需要在IOC容器中存在，否则需要加上属性required&#x3D;false，表示忽略当前要注入的bean，如果有直接注入，没有跳过，不会报错</p>
+<h4 id="什么是byType，什么是byName"><a href="#什么是byType，什么是byName" class="headerlink" title="什么是byType，什么是byName"></a>什么是byType，什么是byName</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;userService&quot; class=&quot;com.test.UserServiceImpl&quot;&gt;</span><br><span class="line">&lt;/bean&gt; </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line">private UserService userService;</span><br></pre></td></tr></table></figure>
+
+<p>此处byName就是拿变量名userService去匹配IOC容器的iduserService，匹配成功；而byType就是拿变量类型UserService去匹配IOC容器的idcom.test.UserService.UserServiceImpl，因为UserServiceImpl是UserService实现，所以也匹配成功</p>
+<h3 id="Autowird注解的使用"><a href="#Autowird注解的使用" class="headerlink" title="@Autowird注解的使用"></a>@Autowird注解的使用</h3><p>@Autowird默认的注入方式为byType，也就是根据类型匹配，当有多个实现时，则通过byName注入，也可以通过配合@Qualifier注解来显式指定name值，指明要使用哪个具体的实现类</p>
+<p>举例：</p>
+<p>首先有一个接口UserService和两个实现类UserServiceImpl1和UserServiceImpl2，并且这两个实现类已经加入到Spring的IOC容器中了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Service</span><br><span class="line">public class UserServiceImpl1 implements UserService</span><br><span class="line"></span><br><span class="line">@Service</span><br><span class="line">public class UserServiceImpl2 implements UserService</span><br></pre></td></tr></table></figure>
+
+<p>通过@Autowired注入使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line">private UserService userService;</span><br></pre></td></tr></table></figure>
+
+<p>根据上面的步骤，可以很容易判断出，直接这么使用是会报错的<br>原因：首先通过byType注入，判断UserService类型有两个实现，无法确定具体是哪一个，于是通过byName方式，这里的变量名userService也无法匹配IOC容器中id（此处指的userServiceImpl1和userServiceImpl2），于是报错。</p>
+<p>注意：通过注解注入到IOC容器的id值默认是其类名首字母小写</p>
+<p>解决方案</p>
+<p>方式一：</p>
+<p>&#x2F;&#x2F; 方式一：改变变量名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line">private UserService userServiceImpl1;</span><br></pre></td></tr></table></figure>
+
+<p>方式二：</p>
+<p>&#x2F;&#x2F; 方式二：配合@Qualifier注解来显式指定name值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line">@Qualifier(value = &quot;userServiceImpl1&quot;)</span><br><span class="line">private UserService userService;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Resource注解的使用"><a href="#Resource注解的使用" class="headerlink" title="@Resource注解的使用"></a>@Resource注解的使用</h3><p>步骤：@Resource默认通过byName注入，如果没有匹配则通过byType注入</p>
+<p>举例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Service</span><br><span class="line">public class UserServiceImpl1 implements UserService</span><br><span class="line"></span><br><span class="line">@Service</span><br><span class="line">public class UserServiceImpl2 implements UserService</span><br><span class="line"></span><br><span class="line">@Resource</span><br><span class="line">private UserService userService;</span><br></pre></td></tr></table></figure>
+
+<p>首先通过byName匹配，变量名userService无法匹配IOC容器中任何一个id（这里指的userServiceImpl1和userServiceImpl2），于是通过byType匹配，发现类型UserService的实现类有两个，仍然无法确定，于是BeanCreationException异常。</p>
+<p>同时@Resource还有两个重要的属性：name和type，用来显式指定byName和byType方式注入</p>
+<h4 id="Resource装配顺序"><a href="#Resource装配顺序" class="headerlink" title="@Resource装配顺序"></a>@Resource装配顺序</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/ 1. 默认方式：byName</span><br><span class="line">@Resource  </span><br><span class="line">private UserService userDao; </span><br><span class="line"></span><br><span class="line">// 2. 指定byName</span><br><span class="line">@Resource(name=&quot;userService&quot;)  </span><br><span class="line">private UserService userService; </span><br><span class="line"></span><br><span class="line">// 3. 指定byType</span><br><span class="line">@Resource(type=UserService.class)  </span><br><span class="line">private UserService userService; </span><br><span class="line"></span><br><span class="line">// 4. 指定byName和byType</span><br><span class="line">@Resource(name=&quot;userService&quot;,type=UserService.class)  </span><br><span class="line">private UserService userService; </span><br></pre></td></tr></table></figure>
+
+<p>既没指定name属性，也没指定type属性：默认通过byName方式注入，如果byName匹配失败，则使用byType方式注入（也就是上面的那个例子）<br>指定name属性：通过byName方式注入，把变量名和IOC容器中的id去匹配，匹配失败则报错<br>指定type属性：通过byType方式注入，在IOC容器中匹配对应的类型，如果匹配不到或者匹配到多个则报错<br>同时指定name属性和type属性：在IOC容器中匹配，名字和类型同时匹配则成功，否则失败</p>
 
     </div>
 
@@ -280,15 +315,16 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/git/" rel="tag"><i class="fa fa-tag"></i> git</a>
+              <a href="/tags/springboot/" rel="tag"><i class="fa fa-tag"></i> springboot</a>
+              <a href="/tags/java/" rel="tag"><i class="fa fa-tag"></i> java</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2023/04/02/implment-a-high-performance-rpc-with-go/" rel="prev" title="使用go实现一个简单的高性能RPC">
-                  <i class="fa fa-chevron-left"></i> 使用go实现一个简单的高性能RPC
+                <a href="/2023/04/09/the-usage-of-git/" rel="prev" title="git使用过程中遇到的问题以及解决方法">
+                  <i class="fa fa-chevron-left"></i> git使用过程中遇到的问题以及解决方法
                 </a>
             </div>
             <div class="post-nav-item">
