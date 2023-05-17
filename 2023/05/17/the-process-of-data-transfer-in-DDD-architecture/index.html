@@ -20,25 +20,35 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="人生如逆旅 我亦是行人">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Robert&#39;s blog">
-<meta property="og:url" content="https://robertchen.cn/tags/java/index.html">
+    <meta name="description" content="DDD架构中如何domain层和infrastructure如何传递数据，以及作用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDD架构中数据传递的过程">
+<meta property="og:url" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
-<meta property="og:description" content="人生如逆旅 我亦是行人">
+<meta property="og:description" content="DDD架构中如何domain层和infrastructure如何传递数据，以及作用">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/1895018-20230314115040094-875486601-16843216712372.png">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/2-02-16826858766012.png">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517192910187.png">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517193502810.png">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517200449992.png">
+<meta property="og:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517200645985.png">
+<meta property="article:published_time" content="2023-05-17T08:39:31.000Z">
+<meta property="article:modified_time" content="2023-05-17T08:39:31.000Z">
 <meta property="article:author" content="Robert">
+<meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/1895018-20230314115040094-875486601-16843216712372.png">
 
 
-<link rel="canonical" href="https://robertchen.cn/tags/java/">
+<link rel="canonical" href="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"tags/java/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/","path":"2023/05/17/the-process-of-data-transfer-in-DDD-architecture/","title":"DDD架构中数据传递的过程"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>标签: java | Robert's blog</title>
+<title>DDD架构中数据传递的过程 | Robert's blog</title>
   
 
 
@@ -125,7 +135,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -138,6 +148,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">传统的三层架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%9B%9B%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">领域驱动设计的四层架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E5%B1%82%E5%8C%85%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">领域层包结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%B1%82%E5%8C%85%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">基础层包结构</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -183,50 +194,131 @@
 
     </div>
 
-    <div class="main-inner tag posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">java
-          <small>标签</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="DDD架构中数据传递的过程 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DDD架构中数据传递的过程
         </h1>
-      </div>
 
-      
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-05-17 16:39:31" itemprop="dateCreated datePublished" datetime="2023-05-17T16:39:31+08:00">2023-05-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>DDD架构中如何domain层和infrastructure如何传递数据，以及作用</p>
+<span id="more"></span>
+
+<h3 id="传统的三层架构"><a href="#传统的三层架构" class="headerlink" title="传统的三层架构"></a>传统的三层架构</h3><p>传统的三层架构包括表示层、业务逻辑层和数据访问层，它的设计目标是将系统划分为独立的、高内聚、低耦合的模块，使得每个模块的职责清晰、易于维护和升级。在这种架构中，业务逻辑层是系统的核心，它处理所有的业务逻辑，而表示层和数据访问层则分别负责与用户交互和访问数据。</p>
+<img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/1895018-20230314115040094-875486601-16843216712372.png" class title="1895018-20230314115040094-875486601">
+
+<p>MVC模式中业务逻辑层直接与数据访问层交互，导致与数据层面有较强的依赖关系，以致于不便后续数据层面的更新，并且也会导致自身的庞大和臃肿，不便后续的维护。</p>
+<h3 id="领域驱动设计的四层架构"><a href="#领域驱动设计的四层架构" class="headerlink" title="领域驱动设计的四层架构"></a>领域驱动设计的四层架构</h3><img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/2-02-16826858766012.png" class title="2-02-16826858766012">
+
+<p>领域驱动设计的四层架构则更加强调领域模型的设计和实现，它包括表示层、应用层、领域层和基础设施层。在这种架构中，领域层是系统的核心，它包含了系统的领域模型和业务逻辑，而应用层负责协调各个领域层的操作，提供应用程序的服务接口，表示层负责与用户交互，基础设施层负责提供与外部系统的交互和数据存储等服务。</p>
+<p>领域层只关注业务逻辑的实现，提供领域数据的接口，而不关注具体数据如何操作，基础层实现领域层提供的接口，配合DAO和po完成具体的方法。</p>
+<h4 id="领域层包结构"><a href="#领域层包结构" class="headerlink" title="领域层包结构"></a>领域层包结构</h4><img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517192910187.png" class title="image-20230517192910187">
+
+<p>activity, award,strategy是三个领域，领域下在repository包中定义具体的数据接口。</p>
+<h4 id="基础层包结构"><a href="#基础层包结构" class="headerlink" title="基础层包结构"></a>基础层包结构</h4><p>dao包含数据访问逻辑，po是持久化对象，repository是对领域层提供的接口的实现</p>
+<img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517193502810.png" class title="image-20230517193502810">
+
+<p>在infrastructure层下实现这些接口，DAO做数据层面的交互，处理数据访问逻辑，可以实现解耦合。</p>
+<p>并且，仓储层可以在领域模型的操作之上实施领域规则。这意味着在执行数据访问操作之前或之后，可以在仓储中添加额外的逻辑来保持领域模型的一致性和完整性。</p>
+<img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517200449992.png" class title="image-20230517200449992">
+
+<p>仓储层可以负责将基础设施层的数据映射为领域模型所需的数据结构，以及将领域模型的数据转换为基础设施层所需的格式。这种转换和映射逻辑可以在仓储中集中处理，减少领域模型与基础设施层之间的耦合。如转换成聚合根。</p>
+<img src="/2023/05/17/the-process-of-data-transfer-in-DDD-architecture/image-20230517200645985.png" class title="image-20230517200645985">
+
+<p>过在仓储层中定义接口，可以实现技术的灵活性，使得可以更换底层数据访问技术或使用不同的数据存储策略，而无需修改领域模型。同时，仓储接口也有助于编写针对领域模型的单元测试，因为可以使用模拟或存根实现来模拟数据访问。</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-04-17T22:27:13+08:00"
-              content="2023-04-17">
-          04-17
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/04/17/difference-between-resource-and-autowired/" itemprop="url">
-            <span itemprop="name">理清@Autowired和@Resource的区别和联系</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 设计模式</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/04/17/difference-between-resource-and-autowired/" rel="prev" title="理清@Autowired和@Resource的区别和联系">
+                  <i class="fa fa-chevron-left"></i> 理清@Autowired和@Resource的区别和联系
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
+
 
 </div>
   </main>
