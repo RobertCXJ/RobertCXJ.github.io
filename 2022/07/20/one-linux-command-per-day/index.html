@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="每天坚持学习Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每天一个Linux命令：top">
+<meta property="og:url" content="https://robertchen.cn/2022/07/20/one-linux-command-per-day/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="每天坚持学习Linux">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2022/07/20/one-linux-command-per-day/top1.jpg">
+<meta property="og:image" content="https://robertchen.cn/2022/07/20/one-linux-command-per-day/top2.png">
+<meta property="article:published_time" content="2022-07-20T09:51:02.000Z">
+<meta property="article:modified_time" content="2022-07-20T09:51:02.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2022/07/20/one-linux-command-per-day/top1.jpg">
+
+
+<link rel="canonical" href="https://robertchen.cn/2022/07/20/one-linux-command-per-day/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2022/07/20/one-linux-command-per-day/","path":"2022/07/20/one-linux-command-per-day/","title":"每天一个Linux命令：top"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>每天一个Linux命令：top | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2022/07/20/one-linux-command-per-day/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="每天一个Linux命令：top | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每天一个Linux命令：top
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-20 17:51:02" itemprop="dateCreated datePublished" datetime="2022-07-20T17:51:02+08:00">2022-07-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>每天坚持学习Linux</p>
+<span id="more"></span>
+
+<p>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器。下面详细介绍它的使用方法。top是一个动态显示过程,即可以通过用户按键来不断刷新当前状态.如果在前台执行该命令,它将独占前台,直到用户终止该程序为止.比较准确的说,top命令提供了实时的对系统处理器的状态监视.它将显示系统中CPU最“敏感”的任务列表.该命令可以按CPU使用.内存使用和执行时间对任务进行排序；而且该命令的很多特性都可以通过交互式命令或者在个人定制文件中进行设定</p>
+<p><strong>1．</strong>命令格式：</p>
+<p>top [参数]</p>
+<p><strong>2．</strong> 命令功能</p>
+<p>显示当前系统正在执行的进程的相关信息，包括进程ID、内存占用率、CPU占用率等</p>
+<p>3．命令参数：</p>
+<p>-b 批处理</p>
+<p>-c 显示完整的治命令</p>
+<p>-I 忽略失效过程</p>
+<p>-s 保密模式</p>
+<p>-S 累积模式</p>
+<p>-i&lt;时间&gt; 设置间隔时间</p>
+<p>-u&lt;用户名&gt; 指定用户名</p>
+<p>-p&lt;进程号&gt; 指定进程</p>
+<p>-n&lt;次数&gt; 循环显示的次数</p>
+<p><strong>统计信息区</strong>：</p>
+<p>前五行是当前系统情况整体的统计信息区。下面我们看每一行信息的具体意义。</p>
+<p><strong>第一行</strong>，任务队列信息，同 uptime 命令的执行结果，具体参数说明情况如下：</p>
+<p>14:06:23 — 当前系统时间</p>
+<p>up 70 days, 16:44 — 系统已经运行了70天16小时44分钟（</p>
+<p>2 users — 当前有2个用户登录系统</p>
+<p>load average: 1.15, 1.42, 1.44 — load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况。</p>
+<p>load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5的时候就表明系统在超负荷运转了。</p>
+<p><strong>第二行</strong>，Tasks — 任务（进程），具体信息说明如下：</p>
+<p>系统现在共有206个进程，其中处于运行中的有1个，205个在休眠（sleep），stoped状态的有0个，zombie状态（僵尸）的有0个。</p>
+<p><strong>第三行</strong>，cpu状态 信息，具体属性说明如下：</p>
+<p>5.9%us — 用户空间占用CPU的百分比。</p>
+<p>3.4% sy — 内核空间占用CPU的百分比。</p>
+<p>0.0% ni — 改变过优先级的进程占用CPU的百分比</p>
+<p>90.4% id — 空闲CPU百分比</p>
+<p>0.0% wa — IO等待占用CPU的百分比</p>
+<p>0.0% hi — 硬中断（Hardware IRQ）占用CPU的百分比</p>
+<p>0.2% si — 软中断（Software Interrupts）占用CPU的百分比</p>
+<p><strong>备注：</strong>在这里CPU的使用比率和windows概念不同，需要理解linux系统用户空间和内核空间的相关知识！</p>
+<p><strong>第四行</strong>,内存状态，具体信息如下：</p>
+<p>32949016k total — 物理内存总量（32GB）</p>
+<p>14411180k used — 使用中的内存总量（14GB）</p>
+<p>18537836k free — 空闲内存总量（18GB）</p>
+<p>169884k buffers — 缓存的内存量 （169M）</p>
+<p><strong>第五行，</strong>swap交换分区信息，具体信息说明如下：</p>
+<p>32764556k total — 交换区总量（32GB）</p>
+<p>0k used — 使用的交换区总量（0K）</p>
+<p>32764556k free — 空闲交换区总量（32GB）</p>
+<p>3612636k cached — 缓冲的交换区总量（3.6GB）</p>
+<p>备注：第四行中使用中的内存总量（used）指的是现在系统内核控制的内存数，空闲内存总量（free）是内核还未纳入其管控范围的数量。纳入内核管理的内存不见得都在使用中，还包括过去使用过的现在可以被重复利用的内存，内核并不把这些可被重新使用的内存交还到free中去，因此在linux上free内存会越来越少，但不用为此担心。</p>
+<p>如果出于习惯去计算可用内存数，这里有个近似的计算公式：第四行的free + 第四行的buffers + 第五行的cached</p>
+<p>对于内存监控，在top里我们要时刻监控第五行swap交换分区的used，如果这个数值在不断的变化，说明内核在不断进行内存和swap的数据交换，这是真正的内存不够用了</p>
+<p><strong>其他使用技巧：</strong></p>
+<p><strong>1.</strong> <strong>多U多核CPU监控</strong></p>
+<p>在top基本视图中，按键盘数字“1”，可监控每个逻辑CPU的状况：</p>
+<p>​	<img src="/2022/07/20/one-linux-command-per-day/top1.jpg" class title="img"> </p>
+<p>观察上图，服务器有16个逻辑CPU，实际上是4个物理CPU。再按数字键1，就会返回到top基本视图界面。</p>
+<p>**2.**<strong>高亮显示当前运行进程</strong></p>
+<p>​	敲击键盘“b”（打开&#x2F;关闭加亮效果），top的视图变化如下：</p>
+<p>​	  <img src="/2022/07/20/one-linux-command-per-day/top2.png" class title="img"> </p>
+<p>我们发现进程id为2570的“top”进程被加亮了，top进程就是视图第二行显示的唯一的运行态（runing）的那个进程，可以通过敲击“y”键关闭或打开运行态进程的加亮效果。</p>
+<p>**3.**<strong>进程字段排序</strong></p>
+<p>默认进入top时，各进程是按照CPU的占用量来排序的,敲击键盘“x”（打开&#x2F;关闭排序列的加亮效果），top默认的排序列是“%CPU”。</p>
+<p>4.通过”shift + &gt;”或”shift + &lt;”可以向右或左改变排序列</p>
+<p><strong>实例2：****显示 完整命令</strong></p>
+<p>top -c</p>
+<p><strong>实例3：以批处理模式显示程序信息</strong></p>
+<p>top -b</p>
+<p><strong>实例4：****以累积模式显示程序信息</strong></p>
+<p>top -S</p>
+<p><strong>实例5：****设置信息更新次数</strong></p>
+<p> top -n 2</p>
+<p>表示更新两次后终止更新显示</p>
+<p><strong>实例6：设置信息更新时间</strong></p>
+<p>top -d 3</p>
+<p>表示更新周期为3秒</p>
+<p><strong>实例7：显示指定的进程信息</strong></p>
+<p>top -p 574</p>
+<p> <strong>5.top交互命令</strong></p>
+<p>在top 命令执行过程中可以使用的一些交互命令。这些命令都是单字母的，如果在命令行中使用了s 选项， 其中一些命令可能会被屏蔽。</p>
+<p>h 显示帮助画面，给出一些简短的命令总结说明</p>
+<p>k 终止一个进程。</p>
+<p>i 忽略闲置和僵死进程。这是一个开关式命令。</p>
+<p>q 退出程序</p>
+<p>r 重新安排一个进程的优先级别</p>
+<p>S 切换到累计模式</p>
+<p>s 改变两次刷新之间的延迟时间（单位为s），如果有小数，就换算成m s。输入0值则系统将不断刷新，默认值是5 s</p>
+<p>f或者F 从当前显示中添加或者删除项目</p>
+<p>o或者O 改变显示项目的顺序</p>
+<p>l 切换显示平均负载和启动时间信息</p>
+<p>m 切换显示内存信息</p>
+<p>t 切换显示进程和CPU状态信息</p>
+<p>c 切换显示命令名称和完整命令行</p>
+<p>M 根据驻留内存大小进行排序</p>
+<p>P 根据CPU使用百分比大小进行排序</p>
+<p>T 根据时间&#x2F;累计时间进行排序</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/01/21/LeetCode%E9%A2%98%E8%A7%A3%EF%BC%9A%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95/" rel="next" title="LeetCode题解：括号匹配算法">
+                  LeetCode题解：括号匹配算法 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
