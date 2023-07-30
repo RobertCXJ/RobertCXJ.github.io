@@ -20,25 +20,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="人生如逆旅 我亦是行人">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Robert&#39;s blog">
-<meta property="og:url" content="https://robertchen.cn/categories/algorithm/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+    <meta name="description" content="IDEA在使用过程中，会出现各式各样的Cannot Resolve Symbol xxx问题，这篇文章总结了所有的情况">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cannot Resolve Symbol XXX问题的解决方法汇总">
+<meta property="og:url" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
-<meta property="og:description" content="人生如逆旅 我亦是行人">
+<meta property="og:description" content="IDEA在使用过程中，会出现各式各样的Cannot Resolve Symbol xxx问题，这篇文章总结了所有的情况">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png">
+<meta property="article:published_time" content="2023-07-30T16:14:54.000Z">
+<meta property="article:modified_time" content="2023-07-30T16:14:54.000Z">
 <meta property="article:author" content="Robert">
+<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="debug">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png">
 
 
-<link rel="canonical" href="https://robertchen.cn/categories/algorithm/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+<link rel="canonical" href="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"categories/algorithm/数据结构/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/","path":"2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/","title":"Cannot Resolve Symbol XXX问题的解决方法汇总"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>分类: 数据结构 | Robert's blog</title>
+<title>Cannot Resolve Symbol XXX问题的解决方法汇总 | Robert's blog</title>
   
 
 
@@ -125,7 +131,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -138,6 +144,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%B1%BB-%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">第一类:依赖问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%B1%BB-SDK%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">第二类:SDK问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%B1%BB-POM%E6%96%87%E4%BB%B6%E6%9C%AA%E8%A2%AB%E6%AD%A3%E7%A1%AE%E5%8A%A0%E8%BD%BD"><span class="nav-number">3.</span> <span class="nav-text">第三类:POM文件未被正确加载</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -152,7 +159,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -183,50 +190,126 @@
 
     </div>
 
-    <div class="main-inner category posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">数据结构
-          <small>分类</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Cannot Resolve Symbol XXX问题的解决方法汇总 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Cannot Resolve Symbol XXX问题的解决方法汇总
         </h1>
-      </div>
 
-      
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-31 00:14:54" itemprop="dateCreated datePublished" datetime="2023-07-31T00:14:54+08:00">2023-07-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/debug/" itemprop="url" rel="index"><span itemprop="name">debug</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p> IDEA在使用过程中，会出现各式各样的<code>Cannot Resolve Symbol xxx</code>问题，这篇文章总结了所有的情况</p>
+<span id="more"></span>
+
+<h2 id="第一类-依赖问题"><a href="#第一类-依赖问题" class="headerlink" title="第一类:依赖问题"></a>第一类:依赖问题</h2><p>　1、检查项目的pom文件，是否必要的依赖都写清楚了；</p>
+<p>　2、是否使用自己的私有库：<repositories></repositories></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">　&lt;repository&gt;</span><br><span class="line">　　&lt;id&gt;release&lt;/id&gt;</span><br><span class="line">　　&lt;name&gt;Private  Repository&lt;/name&gt;</span><br><span class="line">　　&lt;url&gt;http://xxxxxx&lt;/url&gt;</span><br><span class="line">　　&lt;/repository&gt;</span><br><span class="line">　　&lt;/repositories&gt;</span><br><span class="line">　　&lt;pluginRepositories&gt;</span><br><span class="line">　　&lt;pluginRepository&gt;</span><br><span class="line">　　&lt;id&gt;release&lt;/id&gt;</span><br><span class="line">　　&lt;name&gt;PrivateRepository&lt;/name&gt;</span><br><span class="line">　　&lt;url&gt;http://xxxxxxx&lt;/url&gt;</span><br><span class="line">　　&lt;/pluginRepository&gt;</span><br><span class="line">　　&lt;/pluginRepositories&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>pom</code>文件中有这样的就是使用自身的私有库，库的用户名密码有没有写清楚，一般在maven程序目录的<code>settings.xml</code>文件中设置，在&lt;<code>servers</code>&gt;标签下设置，类似这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;servers&gt;</span><br><span class="line">　　&lt;server&gt;</span><br><span class="line">　　&lt;id&gt;nexus&lt;/id&gt;</span><br><span class="line">　　&lt;username&gt;admin&lt;/username&gt;</span><br><span class="line">　　&lt;password&gt;aaaaaaaaaa&lt;/password&gt;</span><br><span class="line">　　&lt;/server&gt;</span><br><span class="line">&lt;servers&gt;　</span><br></pre></td></tr></table></figure>
+
+<p>3、依赖添加正确后，检查本地的类有没有下载下来，一般是找<strong>C:\Users\用户名.m2\repository</strong>或者自己定义的maven仓库目录这个路径下有没有相应的jar包，如果没有的话，就在编译器中打开<code>Maven Projects</code> 标签，先进行<code>clean</code>一下，再执行<code>install</code>，这里与在命令行下执行是一样的效果。</p>
+<h2 id="第二类-SDK问题"><a href="#第二类-SDK问题" class="headerlink" title="第二类:SDK问题"></a>第二类:SDK问题</h2><p>1、 File - Project Structure - Project SDK，看看SDK有没有选，重选一个本地的自己安装的jdk。</p>
+<p>2、编译器中的maven有没有设置成功，File - Settings - 搜索maven，Maven home directory，设置为自己安装的maven路径</p>
+<p>3、如果还是报错找不到，试试右侧Maven Projects - Report ，刷新样式的按钮，清除下编译器的缓存就好了</p>
+<h2 id="第三类-POM文件未被正确加载"><a href="#第三类-POM文件未被正确加载" class="headerlink" title="第三类:POM文件未被正确加载"></a>第三类:POM文件未被正确加载</h2><p>当pom未被正确加载，module是灰色的，这是新增加的模块没有被正式识别</p>
+<p>解决方法：</p>
+<p>在idea中点击File–&gt;settings，搜索maven，点击ignored Files，可以看到灰色的模块处于选中状态，去掉选中状态点击保存即可正常使用</p>
+<img src="/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png" class title="img">
+
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-07-23T19:49:40+08:00"
-              content="2023-07-23">
-          07-23
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/07/23/quicksort-optimize/" itemprop="url">
-            <span itemprop="name">快排及其优化</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/springboot/" rel="tag"><i class="fa fa-tag"></i> springboot</a>
+              <a href="/tags/debug/" rel="tag"><i class="fa fa-tag"></i> debug</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/07/23/quicksort-optimize/" rel="prev" title="快排及其优化">
+                  <i class="fa fa-chevron-left"></i> 快排及其优化
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
+
 
 </div>
   </main>
