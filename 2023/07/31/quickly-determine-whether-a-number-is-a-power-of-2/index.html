@@ -20,31 +20,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="IDEA在使用过程中，会出现各式各样的Cannot Resolve Symbol xxx问题，这篇文章总结了所有的情况">
+    <meta name="description" content="如何利用位运算判断一个数是否是2的幂次方，如果是，是2的多少次方">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Cannot Resolve Symbol XXX问题的解决方法汇总">
-<meta property="og:url" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/index.html">
+<meta property="og:title" content="快速判断一个数是否是2的幂次方">
+<meta property="og:url" content="https://robertchen.cn/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
-<meta property="og:description" content="IDEA在使用过程中，会出现各式各样的Cannot Resolve Symbol xxx问题，这篇文章总结了所有的情况">
+<meta property="og:description" content="如何利用位运算判断一个数是否是2的幂次方，如果是，是2的多少次方">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png">
-<meta property="article:published_time" content="2023-07-30T16:14:54.000Z">
-<meta property="article:modified_time" content="2023-07-30T16:14:54.000Z">
+<meta property="article:published_time" content="2023-07-31T15:50:25.000Z">
+<meta property="article:modified_time" content="2023-07-31T15:50:25.000Z">
 <meta property="article:author" content="Robert">
-<meta property="article:tag" content="debug">
-<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="位运算">
+<meta property="article:tag" content="algorithm">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png">
 
 
-<link rel="canonical" href="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/">
+<link rel="canonical" href="https://robertchen.cn/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/","path":"2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/","title":"Cannot Resolve Symbol XXX问题的解决方法汇总"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/","path":"2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/","title":"快速判断一个数是否是2的幂次方"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Cannot Resolve Symbol XXX问题的解决方法汇总 | Robert's blog</title>
+<title>快速判断一个数是否是2的幂次方 | Robert's blog</title>
   
 
 
@@ -131,7 +129,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -144,7 +142,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%B1%BB-%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">第一类:依赖问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%B1%BB-SDK%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">第二类:SDK问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%B1%BB-POM%E6%96%87%E4%BB%B6%E6%9C%AA%E8%A2%AB%E6%AD%A3%E7%A1%AE%E5%8A%A0%E8%BD%BD"><span class="nav-number">3.</span> <span class="nav-text">第三类:POM文件未被正确加载</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -201,7 +198,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/spike.jpg">
@@ -214,12 +211,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Cannot Resolve Symbol XXX问题的解决方法汇总 | Robert's blog">
+      <meta itemprop="name" content="快速判断一个数是否是2的幂次方 | Robert's blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Cannot Resolve Symbol XXX问题的解决方法汇总
+          快速判断一个数是否是2的幂次方
         </h1>
 
         <div class="post-meta-container">
@@ -230,7 +227,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-07-31 00:14:54" itemprop="dateCreated datePublished" datetime="2023-07-31T00:14:54+08:00">2023-07-31</time>
+      <time title="创建时间：2023-07-31 23:50:25" itemprop="dateCreated datePublished" datetime="2023-07-31T23:50:25+08:00">2023-07-31</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -238,7 +235,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/debug/" itemprop="url" rel="index"><span itemprop="name">debug</span></a>
+          <a href="/categories/%E4%BD%8D%E8%BF%90%E7%AE%97/" itemprop="url" rel="index"><span itemprop="name">位运算</span></a>
         </span>
     </span>
 
@@ -259,24 +256,25 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p> IDEA在使用过程中，会出现各式各样的<code>Cannot Resolve Symbol xxx</code>问题，这篇文章总结了所有的情况</p>
+        <p>如何利用位运算判断一个数是否是2的幂次方，如果是，是2的多少次方</p>
 <span id="more"></span>
 
-<h2 id="第一类-依赖问题"><a href="#第一类-依赖问题" class="headerlink" title="第一类:依赖问题"></a>第一类:依赖问题</h2><p>　1、检查项目的pom文件，是否必要的依赖都写清楚了；</p>
-<p>　2、是否使用自己的私有库：<repositories></repositories></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">　&lt;repository&gt;</span><br><span class="line">　　&lt;id&gt;release&lt;/id&gt;</span><br><span class="line">　　&lt;name&gt;Private  Repository&lt;/name&gt;</span><br><span class="line">　　&lt;url&gt;http://xxxxxx&lt;/url&gt;</span><br><span class="line">　　&lt;/repository&gt;</span><br><span class="line">　　&lt;/repositories&gt;</span><br><span class="line">　　&lt;pluginRepositories&gt;</span><br><span class="line">　　&lt;pluginRepository&gt;</span><br><span class="line">　　&lt;id&gt;release&lt;/id&gt;</span><br><span class="line">　　&lt;name&gt;PrivateRepository&lt;/name&gt;</span><br><span class="line">　　&lt;url&gt;http://xxxxxxx&lt;/url&gt;</span><br><span class="line">　　&lt;/pluginRepository&gt;</span><br><span class="line">　　&lt;/pluginRepositories&gt;</span><br></pre></td></tr></table></figure>
+<p> 将2的幂次方写成二进制形式后，很容易就会发现有一个特点：二进制中只有一个1，并且1后面跟了n个0； 因此问题可以转化为判断1后面是否跟了n个0就可以了。</p>
+<p>如果将这个数减去1后会发现，仅有的那个1会变为0，而原来的那n个0会变为1；因此将原来的数与去减去1后的数字进行与运算后会发现为零。</p>
+<p>最快速的方法： (number &amp; number - 1) &#x3D;&#x3D; 0</p>
+<p>原因：因为2的N次方换算是二进制为10……0这样的形式(0除外)。与上自己-1的位数，这们得到结果为0。例如。8的二进制为1000；8-1&#x3D;7，7的二进制为111。两者相与的结果为0。计算如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  1000</span><br><span class="line">&amp; 0111</span><br><span class="line"> -------</span><br><span class="line">  0000</span><br></pre></td></tr></table></figure>
 
-<p><code>pom</code>文件中有这样的就是使用自身的私有库，库的用户名密码有没有写清楚，一般在maven程序目录的<code>settings.xml</code>文件中设置，在&lt;<code>servers</code>&gt;标签下设置，类似这样：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;servers&gt;</span><br><span class="line">　　&lt;server&gt;</span><br><span class="line">　　&lt;id&gt;nexus&lt;/id&gt;</span><br><span class="line">　　&lt;username&gt;admin&lt;/username&gt;</span><br><span class="line">　　&lt;password&gt;aaaaaaaaaa&lt;/password&gt;</span><br><span class="line">　　&lt;/server&gt;</span><br><span class="line">&lt;servers&gt;　</span><br></pre></td></tr></table></figure>
+<p>递归实现的代码与非递归实现的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IsTwoPower</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> <span class="number">1024</span>;</span><br><span class="line">        <span class="keyword">if</span>((n &amp; (n - <span class="number">1</span>) )== <span class="number">0</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;是2的&quot;</span> + log2(n) + <span class="string">&quot;次方&quot;</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;不是2的n次方&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 递归实现</span></span><br><span class="line">    <span class="comment">// 注意跳出递归条件，n == 1返回0效果一样但是多加了一层栈</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">log2_recursion</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(n == <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> log2_recursion(n &gt;&gt; <span class="number">1</span>) + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 非递归实现</span></span><br><span class="line">    <span class="comment">// 注意跳出循环条件，不要多加</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">log2</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (n != <span class="number">1</span>) &#123;</span><br><span class="line">            n = n &gt;&gt; <span class="number">1</span>;</span><br><span class="line">            count ++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>3、依赖添加正确后，检查本地的类有没有下载下来，一般是找<strong>C:\Users\用户名.m2\repository</strong>或者自己定义的maven仓库目录这个路径下有没有相应的jar包，如果没有的话，就在编译器中打开<code>Maven Projects</code> 标签，先进行<code>clean</code>一下，再执行<code>install</code>，这里与在命令行下执行是一样的效果。</p>
-<h2 id="第二类-SDK问题"><a href="#第二类-SDK问题" class="headerlink" title="第二类:SDK问题"></a>第二类:SDK问题</h2><p>1、 File - Project Structure - Project SDK，看看SDK有没有选，重选一个本地的自己安装的jdk。</p>
-<p>2、编译器中的maven有没有设置成功，File - Settings - 搜索maven，Maven home directory，设置为自己安装的maven路径</p>
-<p>3、如果还是报错找不到，试试右侧Maven Projects - Report ，刷新样式的按钮，清除下编译器的缓存就好了</p>
-<h2 id="第三类-POM文件未被正确加载"><a href="#第三类-POM文件未被正确加载" class="headerlink" title="第三类:POM文件未被正确加载"></a>第三类:POM文件未被正确加载</h2><p>当pom未被正确加载，module是灰色的，这是新增加的模块没有被正式识别</p>
-<p>解决方法：</p>
-<p>在idea中点击File–&gt;settings，搜索maven，点击ignored Files，可以看到灰色的模块处于选中状态，去掉选中状态点击保存即可正常使用</p>
-<img src="/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JlbmJlbmppbGU=,size_16,color_FFFFFF,t_70.png" class title="img">
+<p>扩展1：求一个数n的二进制中的1的个数</p>
+<p>了解了(number &amp; number - 1) &#x3D;&#x3D; 0这个特性以后，我们可以发现利用它可以移除一个数最右边的1，循环移除就可以得到1的个数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">fun3</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (n != <span class="number">0</span>) &#123;</span><br><span class="line">        n = n &amp; (n - <span class="number">1</span>);</span><br><span class="line">        count++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>扩展2：数A与数B的二进制位中有多少个数不相同</p>
+<p>由于异或的特性，可知只有不同的数异或才为1，那么1的个数就是不相同的个数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">fun3</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (n != <span class="number">0</span>) &#123;</span><br><span class="line">        n = n &amp; (n - <span class="number">1</span>);</span><br><span class="line">        count++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">difference</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> j)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> i ^ j;</span><br><span class="line">    <span class="keyword">return</span> fun3(c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -287,22 +285,19 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/debug/" rel="tag"><i class="fa fa-tag"></i> debug</a>
-              <a href="/tags/springboot/" rel="tag"><i class="fa fa-tag"></i> springboot</a>
+              <a href="/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/" rel="tag"><i class="fa fa-tag"></i> 位运算</a>
+              <a href="/tags/algorithm/" rel="tag"><i class="fa fa-tag"></i> algorithm</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2023/07/23/quicksort-optimize/" rel="prev" title="快排及其优化">
-                  <i class="fa fa-chevron-left"></i> 快排及其优化
+                <a href="/2023/07/31/Summary-of-solutions-to-the-Cannot-Resolve-Symbol-XXX-Problem/" rel="prev" title="Cannot Resolve Symbol XXX问题的解决方法汇总">
+                  <i class="fa fa-chevron-left"></i> Cannot Resolve Symbol XXX问题的解决方法汇总
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/" rel="next" title="快速判断一个数是否是2的幂次方">
-                  快速判断一个数是否是2的幂次方 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
