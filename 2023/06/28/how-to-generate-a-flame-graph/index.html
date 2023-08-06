@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="如何使用perf工具和火焰图工具生成火焰图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何生成火焰图">
+<meta property="og:url" content="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="如何使用perf工具和火焰图工具生成火焰图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/flame.png">
+<meta property="og:image" content="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/image-20230806204937168.png">
+<meta property="og:image" content="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/image-20230806210451419.png">
+<meta property="article:published_time" content="2023-06-28T12:46:30.000Z">
+<meta property="article:modified_time" content="2023-06-28T12:46:30.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="perf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/flame.png">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/","path":"2023/06/28/how-to-generate-a-flame-graph/","title":"如何生成火焰图"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何生成火焰图 | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%81%AB%E7%84%B0%E5%9B%BE%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1 火焰图简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E7%81%AB%E7%84%B0%E5%9B%BE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 火焰图类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8-On-CPU-%E7%81%AB%E7%84%B0%E5%9B%BE-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8-Off-CPU-%E7%81%AB%E7%84%B0%E5%9B%BE%E5%91%A2"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 什么时候使用 On-CPU 火焰图? 什么时候使用 Off-CPU 火焰图呢?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E7%81%AB%E7%84%B0%E5%9B%BE%E5%88%86%E6%9E%90%E6%8A%80%E5%B7%A7"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 火焰图分析技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%81%AB%E7%84%B0%E5%9B%BE%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">2 如何绘制火焰图？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%94%9F%E6%88%90%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 生成火焰图的流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AE%89%E8%A3%85-perf%E5%B7%A5%E5%85%B7"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装 perf工具</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-%E5%AE%89%E8%A3%85perf"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.2.1 安装perf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-%E6%B5%8B%E8%AF%95perf%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2.2 测试perf是否可用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-perf%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">2.2.3.</span> <span class="nav-text">2.2.3 perf常用命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-perf-%E9%87%87%E9%9B%86%E6%95%B0%E6%8D%AE"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 perf 采集数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E7%94%9F%E6%88%90%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 生成火焰图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E5%90%AB%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text">3.1 火焰图的含义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BA%92%E5%8A%A8"><span class="nav-number">4.</span> <span class="nav-text">4 互动</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/06/28/how-to-generate-a-flame-graph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何生成火焰图 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何生成火焰图
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 20:46:30" itemprop="dateCreated datePublished" datetime="2023-06-28T20:46:30+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/perf/" itemprop="url" rel="index"><span itemprop="name">perf</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>如何使用perf工具和火焰图工具生成火焰图</p>
+<span id="more"></span>
+
+<p>火焰图仅用一张小图，就可以定量展示所有的性能瓶颈的全景图，而不论目标软件有多么复杂。<br>传统的性能分析工具通常会给用户展示大量的细节信息和数据， 而用户很难看到全貌，反而容易去优化那些并不重要的地方，经常浪费大量时间和精力却看不到明显效果。传统分析器的另一个缺点是，它们通常会孤立地显示每个函数调用的延时，但很难看出各个函数调用的上下文，而且用户还须刻意区分当前函数本身运行的时间（exclusive time）和包括了其调用其他函数的时间在内的总时间（inclusive time）。</p>
+<p>而相比之下，火焰图可以把大量信息压缩到一个大小相对固定的图片当中（通常一屏就可以显示全）。 不怎么重要的代码路径会在图上自然地淡化乃至消失，而真正重要的代码路径则会自然地凸显出来。越重要的，则会显示得越明显。火焰图总是为用户提供最适当的信息量，不多，也不少。</p>
+<h2 id="1-火焰图简介"><a href="#1-火焰图简介" class="headerlink" title="1 火焰图简介"></a>1 火焰图简介</h2><p>官方博客：<a target="_blank" rel="noopener" href="https://www.brendangregg.com/flamegraphs.html">https://www.brendangregg.com/flamegraphs.html</a>，火焰图的源资料皆出自该博客。</p>
+<p>火焰图能做什么：</p>
+<ul>
+<li>可以分析函数执行的频繁程度</li>
+<li>可以分析哪些函数经常阻塞</li>
+<li>可以分析哪些函数频繁分配内存</li>
+</ul>
+<p>以分析程序的性能瓶颈。</p>
+<img src="/2023/06/28/how-to-generate-a-flame-graph/flame.png" class title="flame">
+
+<p>火焰图整个图形看起来就像一个跳动的火焰，这就是它名字的由来。<br>火焰图有以下特征（这里以 on-cpu 火焰图为例）：</p>
+<ul>
+<li>每一列代表一个调用栈，每一个格子代表一个函数</li>
+<li>纵轴展示了栈的深度，按照调用关系从下到上排列。最顶上格子代表采样时，正在占用 cpu 的函数。</li>
+<li>横轴的意义是指：火焰图将采集的多个调用栈信息，通过按字母横向排序的方式将众多信息聚合在一起。需要注意的是它并不代表时间。</li>
+<li>横轴格子的宽度代表其在采样中出现频率，所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。</li>
+<li>火焰图格子的颜色是随机的暖色调，方便区分各个调用信息。</li>
+<li>其他的采样方式也可以使用火焰图， on-cpu 火焰图横轴是指 cpu 占用时间，off-cpu 火焰图横轴则代表阻塞时间。</li>
+<li>采样可以是单线程、多线程、多进程甚至是多 host，进阶用法可以参考附录进阶阅读。</li>
+</ul>
+<h3 id="1-1-火焰图类型"><a href="#1-1-火焰图类型" class="headerlink" title="1.1 火焰图类型"></a>1.1 火焰图类型</h3><p>常见的火焰图类型有 On-CPU，Off-CPU，还有 Memory，Hot&#x2F;Cold，Differential 等等。它们有各自适合处理的场景。</p>
+<table>
+<thead>
+<tr>
+<th>火焰图类型</th>
+<th>横轴含义</th>
+<th>纵轴含义</th>
+<th>解决问题</th>
+<th>采样方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>on-cpu火焰图</td>
+<td>cpu占用时间</td>
+<td>调用栈</td>
+<td>找出cpu占用搞的问题函数；分析代码热路径</td>
+<td>固定频率采样cpu调用栈</td>
+</tr>
+<tr>
+<td>off-cpu火焰图</td>
+<td>阻塞时间</td>
+<td>调用栈</td>
+<td>i&#x2F;o、网络等阻塞场景导致的性能下降；锁竞争、死锁导致的性能下降问题</td>
+<td>固定频率采样阻塞事件调用栈</td>
+</tr>
+<tr>
+<td>内存火焰图</td>
+<td>内存申请&#x2F;释放函数调用次数</td>
+<td>调用栈</td>
+<td>内存泄漏问题；内存占用高的对象&#x2F;申请内存多的函数；虚拟内存或物理内存泄漏问题</td>
+<td>有四种方式：跟踪malloc&#x2F;free；跟踪brk；跟踪mmap；跟踪页错误</td>
+</tr>
+<tr>
+<td>Hot&#x2F;Cold火焰图</td>
+<td>on-cpu和off-cpu综合展示</td>
+<td>调用栈</td>
+<td>需要结合cpu占用以及阻塞分析的场景；off-cpu火焰图无法直观判断的场景</td>
+<td>on-cpu火焰图和off-cpu火焰图结合</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="1-2-什么时候使用-On-CPU-火焰图-什么时候使用-Off-CPU-火焰图呢"><a href="#1-2-什么时候使用-On-CPU-火焰图-什么时候使用-Off-CPU-火焰图呢" class="headerlink" title="1.2 什么时候使用 On-CPU 火焰图? 什么时候使用 Off-CPU 火焰图呢?"></a>1.2 什么时候使用 On-CPU 火焰图? 什么时候使用 Off-CPU 火焰图呢?</h3><p>取决于当前的瓶颈到底是什么：</p>
+<ul>
+<li>如果是 CPU 则使用 On-CPU 火焰图,</li>
+<li>如果是 IO 或锁则使用 Off-CPU 火焰图.</li>
+<li>如果无法确定, 那么可以通过压测工具来确认：</li>
+<li>通过压测工具看看能否让 <strong>CPU 使用率趋于饱和</strong>, 如果能那么使用 On-CPU 火焰图</li>
+<li>如果不管怎么压, <strong>CPU 使用率始终上不来</strong>, 那么多半说明程序被 IO 或锁卡住了, 此时适合使用 Off-CPU 火焰图.</li>
+<li>如果还是确认不了, 那么不妨 On-CPU 火焰图和 Off-CPU 火焰图都搞搞, 正常情况下它们的差异会比较大, 如果两张火焰图长得差不多, 那么通常认为 CPU 被其它进程抢占了</li>
+</ul>
+<h3 id="1-3-火焰图分析技巧"><a href="#1-3-火焰图分析技巧" class="headerlink" title="1.3 火焰图分析技巧"></a>1.3 火焰图分析技巧</h3><ol>
+<li>纵轴代表调用栈的深度（栈桢数），用于表示函数间调用关系：下面的函数是上面函数的父函数。</li>
+<li>横轴代表调用频次，一个格子的宽度越大，越说明其可能是瓶颈原因。</li>
+<li>不同类型火焰图适合优化的场景不同，比如 on-cpu 火焰图适合分析 cpu 占用高的问题函数，off-cpu 火焰图适合解决阻塞和锁抢占问题。</li>
+<li>无意义的事情：横向先后顺序是为了聚合，跟函数间依赖或调用关系无关；火焰图各种颜色是为方便区分，本身不具有特殊含义</li>
+<li>多练习：进行性能优化有意识的使用火焰图的方式进行性能调优（如果时间充裕）</li>
+</ol>
+<h2 id="2-如何绘制火焰图？"><a href="#2-如何绘制火焰图？" class="headerlink" title="2 如何绘制火焰图？"></a>2 如何绘制火焰图？</h2><h3 id="2-1-生成火焰图的流程"><a href="#2-1-生成火焰图的流程" class="headerlink" title="2.1 生成火焰图的流程"></a>2.1 生成火焰图的流程</h3><p>Brendan D. Gregg 的 Flame Graph 工程实现了一套生成火焰图的脚本。Flame Graph 项目位于 GitHub上<br><a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph">https://github.com/brendangregg/FlameGraph</a></p>
+<p>当GitHub网络不通畅的时候可以使用码云的链接：<br>git clone <a target="_blank" rel="noopener" href="https://gitee.com/mirrors/FlameGraph.git">https://gitee.com/mirrors/FlameGraph.git</a></p>
+<p>用 git 将其 clone下来</p>
+<p>生成和创建火焰图需要如下几个步骤</p>
+<table>
+<thead>
+<tr>
+<th>流程</th>
+<th>描述</th>
+<th>脚本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>捕获堆栈</td>
+<td>使用 perf&#x2F;systemtap&#x2F;dtrace 等工具抓取程序的运行堆栈</td>
+<td>perf&#x2F;systemtap&#x2F;dtrace</td>
+</tr>
+<tr>
+<td>折叠堆栈</td>
+<td>trace 工具抓取的系统和程序运行每一时刻的堆栈信息, 需要对他们进行分析组合, 将重复的堆栈累计在一起, 从而体现出负载和关键路径</td>
+<td>FlameGraph 中的 stackcollapse 程序</td>
+</tr>
+<tr>
+<td>生成火焰图</td>
+<td>分析 stackcollapse 输出的堆栈信息生成火焰图</td>
+<td>flamegraph.pl</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>不同的 trace 工具抓取到的信息不同, 因此 Flame Graph 提供了一系列的 stackcollapse 工具.</p>
+<table>
+<thead>
+<tr>
+<th>stackcollapse</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stackcollapse.pl</td>
+<td>for DTrace stacks</td>
+</tr>
+<tr>
+<td>stackcollapse-perf.pl</td>
+<td>for Linux perf_events “perf script” output</td>
+</tr>
+<tr>
+<td>stackcollapse-pmc.pl</td>
+<td>for FreeBSD pmcstat -G stacks</td>
+</tr>
+<tr>
+<td>stackcollapse-stap.pl</td>
+<td>for SystemTap stacks</td>
+</tr>
+<tr>
+<td>stackcollapse-instruments.pl</td>
+<td>for XCode Instruments</td>
+</tr>
+<tr>
+<td>stackcollapse-vtune.pl</td>
+<td>for Intel VTune profiles</td>
+</tr>
+<tr>
+<td>stackcollapse-ljp.awk</td>
+<td>for Lightweight Java Profiler</td>
+</tr>
+<tr>
+<td>stackcollapse-jstack.pl</td>
+<td>for Java jstack(1) output</td>
+</tr>
+<tr>
+<td>stackcollapse-gdb.pl</td>
+<td>for gdb(1) stacks</td>
+</tr>
+<tr>
+<td>stackcollapse-go.pl</td>
+<td>for Golang pprof stacks</td>
+</tr>
+<tr>
+<td>stackcollapse-vsprof.pl</td>
+<td>for Microsoft Visual Studio profiles</td>
+</tr>
+</tbody></table>
+<p><strong>查看帮助</strong><br><code>./FlameGraph/flamegraph.pl -h</code></p>
+<h3 id="2-2-安装-perf工具"><a href="#2-2-安装-perf工具" class="headerlink" title="2.2 安装 perf工具"></a>2.2 安装 perf工具</h3><p>perf 命令(performance 的缩写)讲起, 它是 Linux 系统原生提供的性能分析工具, 会返回 CPU 正在执行的函数名以及调用栈(stack)</p>
+<p>具体用法：</p>
+<ul>
+<li><strong>perf Examples</strong> <a target="_blank" rel="noopener" href="https://www.brendangregg.com/perf.html">https://www.brendangregg.com/perf.html</a></li>
+<li><strong>Linux kernel profiling with perf</strong> <a target="_blank" rel="noopener" href="https://perf.wiki.kernel.org/index.php/Tutorial">https://perf.wiki.kernel.org/index.php/Tutorial</a></li>
+</ul>
+<h4 id="2-2-1-安装perf"><a href="#2-2-1-安装perf" class="headerlink" title="2.2.1 安装perf"></a>2.2.1 安装perf</h4><p>ubuntu下</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">apt install linux-tools-common</span></span><br></pre></td></tr></table></figure>
+
+<p>centos下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install perf</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-测试perf是否可用"><a href="#2-2-2-测试perf是否可用" class="headerlink" title="2.2.2 测试perf是否可用"></a>2.2.2 测试perf是否可用</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># perf record -F 99 -a -g -- sleep 10    </span></span><br></pre></td></tr></table></figure>
+
+<p>如果报错</p>
+<blockquote>
+<p>WARNING: perf not found for kernel <strong>4.15.0-48</strong></p>
+<p>You may need to install the following packages for this specific kernel:<br>linux-tools-4.15.0-48-generic<br>linux-cloud-tools-4.15.0-48-generic</p>
+<p>You may also want to install one of the following packages to keep up to date:<br>linux-tools-generic<br>linux-cloud-tools-generic</p>
+<p>apt install linux-tools-generic<br>apt install linux-cloud-tools-generic</p>
+</blockquote>
+<p>则需要安装linux-tools-generic和linux-cloud-tools-generic，但需选择对应的版本，比如提示的是<strong>4.15.0-48，则我们安装4.15.0-48版本</strong>。</p>
+<blockquote>
+<p># apt-get install linux-tools-4.15.0-48-generic linux-cloud-tools-4.15.0-48-generic linux-tools-generic linux-cloud-tools-generic</p>
+</blockquote>
+<p>再次测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># perf record -F 99 -a -g -- sleep 10    </span></span><br></pre></td></tr></table></figure>
+
+<p>如果没有报错则在执行的目录产生perf.data</p>
+<img src="/2023/06/28/how-to-generate-a-flame-graph/image-20230806204937168.png" class title="image-20230806204937168">
+
+<h4 id="2-2-3-perf常用命令"><a href="#2-2-3-perf常用命令" class="headerlink" title="2.2.3 perf常用命令"></a>2.2.3 perf常用命令</h4><p>查看帮助文档，perf功能非常强大，我们这里只关注record和report功能，record和report也可以继续通过二级命令查询帮助文档。</p>
+<p><strong>perf -h</strong></p>
+<p>常用的五个命令：</p>
+<ul>
+<li>perf list：查看当前软硬件环境支持的性能事件</li>
+<li>perf stat：分析指定程序的性能概况</li>
+<li>perf top：实时显示系统&#x2F;进程的性能统计信息</li>
+<li><strong>perf record</strong>：记录一段时间内系统&#x2F;进程的性能事件perf report：读取perf record生成的perf.data文件，并显示分析数据（生成火焰图用的采集命令）</li>
+<li>perf report：交互式命令查看资源使用情况</li>
+</ul>
+<h3 id="2-3-perf-采集数据"><a href="#2-3-perf-采集数据" class="headerlink" title="2.3 perf 采集数据"></a>2.3 perf 采集数据</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perf record -F 99 -p 3887 -g -- sleep 30</span><br></pre></td></tr></table></figure>
+
+<p>perf record 表示采集系统事件, 没有使用 -e 指定采集事件, 则默认采集 cycles(即 CPU clock 周期), -F 99 表示每秒 99 次, -p 13204 是进程号, 即对哪个进程进行分析, -g 表示记录调用栈, sleep 30 则是持续 30 秒.</p>
+<p>一定要加上 - g，否则无法记录数据！</p>
+<blockquote>
+<p>-F 指定采样频率为 99Hz(每秒99次), 如果 99次 都返回同一个函数名, 那就说明 CPU 这一秒钟都在执行同一个函数, 可能存在性能问题.</p>
+</blockquote>
+<p>运行后会产生一个庞大的文本文件. 如果一台服务器有 16 个 CPU, 每秒抽样 99 次, 持续 30 秒, 就得到 47,520 个调用栈, 长达几十万甚至上百万行.</p>
+<p>为了便于阅读, perf record 命令可以统计每个调用栈出现的百分比, 然后从高到低排列.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perf report -n --stdio</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-生成火焰图"><a href="#2-4-生成火焰图" class="headerlink" title="2.4 生成火焰图"></a>2.4 生成火焰图</h3><ol>
+<li>首先用 <strong>perf script</strong> 工具对 perf.data 进行解析</li>
+</ol>
+<blockquote>
+<p># 生成折叠后的调用栈<br>perf script -i perf.data &amp;&gt; perf.unfold</p>
+</blockquote>
+<p>这里在任意文件夹都可使用</p>
+<ol start="2">
+<li>然后将解析出来的信息存下来, 供生成火焰图</li>
+</ol>
+<p>用 <strong>stackcollapse-perf.pl</strong> 将 perf 解析出的内容 <strong>perf.unfold</strong> 中的符号进行折叠 :</p>
+<blockquote>
+<p># 在FlameGraph同路径下的文件夹生成火焰图<br># .&#x2F;FlameGraph&#x2F;stackcollapse-perf.pl perf.unfold &amp;&gt; perf.folded</p>
+<p>或者使用全路径</p>
+<p>&#x2F;opt&#x2F;rh&#x2F;FlameGraph&#x2F;stackcollapse-perf.pl perf.unfold &amp;&gt; perf.folded</p>
+</blockquote>
+<ol start="3">
+<li>最后生成 svg 图</li>
+</ol>
+<blockquote>
+<p># .&#x2F;FlameGraph&#x2F;flamegraph.pl perf.folded &gt; perf.svg</p>
+<p>&#x2F;opt&#x2F;rh&#x2F;FlameGraph&#x2F;flamegraph.pl perf.folded &gt; perf.svg</p>
+</blockquote>
+<h2 id="3-1-火焰图的含义"><a href="#3-1-火焰图的含义" class="headerlink" title="3.1 火焰图的含义"></a>3.1 火焰图的含义</h2><p>火焰图是基于 stack 信息生成的 SVG 图片, 用来展示 CPU 的调用栈。</p>
+<ul>
+<li>y 轴表示调用栈, 每一层都是一个函数. 调用栈越深, 火焰就越高, 顶部就是正在执行的函数, 下方都是它的父函数.</li>
+<li>x 轴表示抽样数, 如果一个函数在 x 轴占据的宽度越宽, 就表示它被抽到的次数多, 即执行的时间长. 注意, x 轴不代表时间, 而是所有的调用栈合并后, 按字母顺序排列的.</li>
+<li>火焰图就是看顶层的哪个函数占据的宽度最大. 只要有 “平顶”(plateaus), 就表示该函数可能存在性能问题。</li>
+<li>颜色没有特殊含义, 因为火焰图表示的是 CPU 的繁忙程度, 所以一般选择暖色调.</li>
+</ul>
+<h2 id="4-互动"><a href="#4-互动" class="headerlink" title="4 互动"></a>4 互动</h2><p>火焰图是 SVG 图片，可以与用户互动</p>
+<p>火焰的每一层都会标注函数名，鼠标悬浮时会显示完整的函数名、抽样抽中的次数、占据总抽样次数的百分比。下面是一个例子</p>
+<p>在某一层点击，火焰图会水平放大，该层会占据所有宽度，显示详细信息。</p>
+<img src="/2023/06/28/how-to-generate-a-flame-graph/image-20230806210451419.png" class title="image-20230806210451419">
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/perf/" rel="tag"><i class="fa fa-tag"></i> perf</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/05/11/the-process-of-data-transfer-in-DDD-architecture/" rel="prev" title="DDD架构中数据传递的过程">
+                  <i class="fa fa-chevron-left"></i> DDD架构中数据传递的过程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/07/15/transaction-isolation-level-demo/" rel="next" title="事务隔离级别实例">
+                  事务隔离级别实例 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
