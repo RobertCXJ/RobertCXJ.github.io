@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="使用go-callvis查看逻辑复杂的项目的函数调用流程，减少理解成本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用go-callvis查看函数调用流程">
+<meta property="og:url" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="使用go-callvis查看逻辑复杂的项目的函数调用流程，减少理解成本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807113823511.png">
+<meta property="og:image" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807115955151.png">
+<meta property="og:image" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807120123267.png">
+<meta property="og:image" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807120312873.png">
+<meta property="article:published_time" content="2023-08-06T13:14:00.000Z">
+<meta property="article:modified_time" content="2023-08-06T13:14:00.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807113823511.png">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/","path":"2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/","title":"使用go-callvis查看函数调用流程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用go-callvis查看函数调用流程 | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go-callvis%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">go-callvis是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90%E8%B0%83%E7%94%A8%E5%85%B3%E7%B3%BB%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">如何生成调用关系图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">SVG：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#go-callvis%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.2.</span> <span class="nav-text">go-callvis使用介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="nav-number">2.3.</span> <span class="nav-text">命令行参数解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E5%91%BD%E4%BB%A4%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="nav-number">2.5.</span> <span class="nav-text">1. 最简单的命令如下：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8C%87%E5%AE%9Apackage"><span class="nav-number">2.6.</span> <span class="nav-text">2. 指定package</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%8C%87%E5%AE%9A%E5%8C%85%E5%90%AB%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95%E7%9A%84package"><span class="nav-number">2.7.</span> <span class="nav-text">3. 指定包含单元测试方法的package</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C%E5%88%B0%E6%96%87%E4%BB%B6"><span class="nav-number">2.8.</span> <span class="nav-text">4. 输出结果到文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-include%E3%80%81limit%E3%80%81ignore%E5%8F%82%E6%95%B0"><span class="nav-number">2.9.</span> <span class="nav-text">5. include、limit、ignore参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E8%BF%87%E6%BB%A4%E6%A0%87%E5%87%86%E5%BA%93"><span class="nav-number">2.10.</span> <span class="nav-text">6. 过滤标准库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-build-tags"><span class="nav-number">2.11.</span> <span class="nav-text">7. build tags</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%A0%81%E4%BD%BF%E7%94%A8%E5%AE%9E%E6%88%98"><span class="nav-number">3.</span> <span class="nav-text">本地代码使用实战</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用go-callvis查看函数调用流程 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用go-callvis查看函数调用流程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-08-06 21:14:00" itemprop="dateCreated datePublished" datetime="2023-08-06T21:14:00+08:00">2023-08-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>使用go-callvis查看逻辑复杂的项目的函数调用流程，减少理解成本</p>
+<span id="more"></span>
+
+<h2 id="go-callvis是什么"><a href="#go-callvis是什么" class="headerlink" title="go-callvis是什么"></a>go-callvis是什么</h2><p>go-callvis是代码调用链路可视化工具，是代码方法级别的调用关系，主要用于代码设计。可视化工具可以将代码间的调用关系通过图表的方式展示出来，如下图。</p>
+<img src="/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807113823511.png" class title="image-20230807113823511">
+
+<h2 id="如何生成调用关系图"><a href="#如何生成调用关系图" class="headerlink" title="如何生成调用关系图"></a>如何生成调用关系图</h2><p>go-callvis除了可以生成图片文件，还可以生成svg图，它默认会启动一个Web Server，我们可以在浏览器访问它的地址，在页面上实现交互式的浏览调用关系。</p>
+<h3 id="SVG："><a href="#SVG：" class="headerlink" title="SVG："></a><strong>SVG：</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SVG是一种用XML定义的语言，用来描述二维矢量及矢量/栅格图形。</span><br><span class="line">SVG图形是可交互的和动态的，可以在SVG文件中嵌入动画元素或通过脚本来定义动画。</span><br></pre></td></tr></table></figure>
+
+<p>下面是一段SVG代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;g id=&quot;a_clust3&quot;&gt;&lt;a xlink:href=&quot;/?f=github.com/goccy/go-graphviz/cgraph&quot; xlink:title=&quot;package: github.com/goccy/go&amp;#45;graphviz/cgraph&quot;&gt;</span><br><span class="line">&lt;polygon fill=&quot;#ffffe0&quot; stroke=&quot;#000000&quot; stroke-width=&quot;.8&quot; points=&quot;861.8909,-442.8 861.8909,-521.8 972.5803,-521.8 972.5803,-442.8 861.8909,-442.8&quot;/&gt;</span><br><span class="line">&lt;text text-anchor=&quot;middle&quot; x=&quot;917.2356&quot; y=&quot;-503.4&quot; font-family=&quot;Tahoma bold&quot; font-size=&quot;16.00&quot; fill=&quot;#000000&quot;&gt;cgraph&lt;/text&gt; </span><br></pre></td></tr></table></figure>
+
+<p>可以看到和HTML类似，同样是一种标记语言。</p>
+<h3 id="go-callvis使用介绍"><a href="#go-callvis使用介绍" class="headerlink" title="go-callvis使用介绍"></a><strong>go-callvis使用介绍</strong></h3><p>首先使用<code>go get -u github.com/ofabry/go-callvis</code> 命令进行安装，安装完成后go-callvis将出现在你得GOPATH&#x2F;bin目录下。</p>
+<h3 id="命令行参数解释："><a href="#命令行参数解释：" class="headerlink" title="命令行参数解释："></a><strong>命令行参数解释：</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">go-callvis: visualize call graph of a Go program.</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  go-callvis [flags] package //package即想要进行分析的包名，注意：package必须是main包或者包含单元测试的包，原因稍候介绍</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Flags:</span><br><span class="line"></span><br><span class="line">  -cacheDir string</span><br><span class="line">        如果指定了缓存目录，生成过的图片将被保存下来，后续使用时不需要再渲染</span><br><span class="line">  -debug</span><br><span class="line">        开启调试日志.</span><br><span class="line">  -file string</span><br><span class="line">        指定输出文件名，使用后将不在启动Web Server</span><br><span class="line">  -focus string</span><br><span class="line">        定位到指定的package，package可以是包名也可以是包的import路径，默认main包</span><br><span class="line">  -format string</span><br><span class="line">        指定输出文件格式[svg | png | jpg | ...] (default &quot;svg&quot;)</span><br><span class="line">  -graphviz</span><br><span class="line">        使用本地安装的graphviz的dot命令，否则使用graphviz的go库</span><br><span class="line">  -group string</span><br><span class="line">        分组方式： packages and/or types [pkg, type] (separated by comma) (default &quot;pkg&quot;)</span><br><span class="line">  -http string</span><br><span class="line">        Web Server地址. (default &quot;:7878&quot;)</span><br><span class="line">  -ignore string</span><br><span class="line">        忽略的packages，多个使用逗号分隔。（使用前缀匹配）</span><br><span class="line">  -include string</span><br><span class="line">        必须包含的packages，多个使用逗号分隔。优先级比ignore和limit高（使用前缀匹配）</span><br><span class="line">  -limit string</span><br><span class="line">        限制的packages，多个使用逗号分隔（使用前缀匹配）</span><br><span class="line">  -minlen uint</span><br><span class="line">        两个节点直接最小连线长度（用于更宽的输出）. (default 2)</span><br><span class="line">  -nodesep float</span><br><span class="line">        同一列中两个相邻节点之间的最小空间（用于更高的输出）. (default 0.35)</span><br><span class="line">  -nodeshape string</span><br><span class="line">        节点形状 (查看graphvis文档，获取更多可用值) (default &quot;box&quot;)</span><br><span class="line">  -nodestyle string</span><br><span class="line">        节点style(查看graphvis文档，获取更多可用值) (default &quot;filled,rounded&quot;)</span><br><span class="line">  -nointer</span><br><span class="line">        忽略未导出的方法</span><br><span class="line">  -nostd</span><br><span class="line">        忽略标准库的方法</span><br><span class="line">  -rankdir string</span><br><span class="line">        对齐方式 [LR 调用关系从左到右| RL 从右到左| TB 从上到下| BT 从下到上] (default &quot;LR&quot;)</span><br><span class="line">  -skipbrowser</span><br><span class="line">        不打开浏览器</span><br><span class="line">  -tags build tags</span><br><span class="line">        支持传入build tags</span><br><span class="line">  -tests</span><br><span class="line">        包含测试代码</span><br><span class="line">  -version</span><br><span class="line">        Show version and exit. </span><br></pre></td></tr></table></figure>
+
+<h3 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a><strong>使用示例</strong></h3><h3 id="1-最简单的命令如下："><a href="#1-最简单的命令如下：" class="headerlink" title="1. 最简单的命令如下："></a><strong>1. 最简单的命令如下：</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis .</span><br></pre></td></tr></table></figure>
+
+<p>此命令会在当前目录进行分析，如果没有错误，会自动打开浏览器，在浏览器中展示图</p>
+<h3 id="2-指定package"><a href="#2-指定package" class="headerlink" title="2. 指定package"></a><strong>2. 指定package</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis github.com/ofabry/go-callvis</span><br></pre></td></tr></table></figure>
+
+<p>指定的package是main，工具将以main方法作为起始点进行链路生成</p>
+<h3 id="3-指定包含单元测试方法的package"><a href="#3-指定包含单元测试方法的package" class="headerlink" title="3. 指定包含单元测试方法的package"></a><strong>3. 指定包含单元测试方法的package</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis -tests yourpackage</span><br></pre></td></tr></table></figure>
+
+<p>如果不想从main方法开始，可以使用-tests参数，在想要进行链路生成的package下面创建一个单元测试方法，测试方法中调用你想要作为起始点的方法。</p>
+<h3 id="4-输出结果到文件"><a href="#4-输出结果到文件" class="headerlink" title="4. 输出结果到文件"></a><strong>4. 输出结果到文件</strong></h3><p>以上都是打开浏览器进行交互式浏览和操作，如果只要输出文件，可以使用-file参数</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis -file yourfilename -format png  yourpackage</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-include、limit、ignore参数"><a href="#5-include、limit、ignore参数" class="headerlink" title="5. include、limit、ignore参数"></a><strong>5. include、limit、ignore参数</strong></h3><p>这三个参数用来控制过滤哪些调用关系（pkg1.FuncA -&gt; pkg2.FuncB，形成一条调用关系，pkg1.FuncA为caller，pkg2.FuncB为callee）。例如代码中频繁出现的log包方法调用，没必要输出到链路中。可以使用ignore参数进行过滤</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis -ignore yourlogpkg yourpackage</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>当调用关系中caller的pkg或者callee的pkg有任意一个在include中，则这条关系被保留。</li>
+<li>不满足1时，当调用关系中caller的pkg或者callee的pkg有任意一个不在limit中，则这条关系被过滤。</li>
+<li>不满足1时，当调用关系中caller的pkg或者callee的pkg有任意一个在ignore中，则这条关系被过滤。</li>
+</ol>
+<h3 id="6-过滤标准库"><a href="#6-过滤标准库" class="headerlink" title="6. 过滤标准库"></a><strong>6. 过滤标准库</strong></h3><p>过滤掉代码中频繁使用的标准库方法调用，例如：fmt、math、strings等</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis -nostd yourpackage</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-build-tags"><a href="#7-build-tags" class="headerlink" title="7. build tags"></a><strong>7. build tags</strong></h3><p>go build命令可以允许我们传入-tags参数，来控制编译的版本</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -tags release </span><br></pre></td></tr></table></figure>
+
+<p>例如有两个配置文件dev_config.go和release_config.go，内容分别为</p>
+<p>dev_config.go</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> // +build dev</span><br><span class="line"></span><br><span class="line">package main</span><br><span class="line"></span><br><span class="line">var version = &quot;DEV&quot;</span><br></pre></td></tr></table></figure>
+
+<p>release_config.go</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// +build release</span><br><span class="line"></span><br><span class="line">package main</span><br><span class="line"></span><br><span class="line">const version = &quot;RELEASE&quot;</span><br></pre></td></tr></table></figure>
+
+<p>每个文件都有一个编译选项（+build），编译器会根据-tags传入的参数识别应该编译哪一个文件。从而达到区分环境的效果。<br>go-callvis的tags参数同理。</p>
+<h2 id="本地代码使用实战"><a href="#本地代码使用实战" class="headerlink" title="本地代码使用实战"></a>本地代码使用实战</h2><p>以kcp-go为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go-callvis -nostd examples/echo.go</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807115955151.png" alt="image-20230807115955151" style="zoom: 67%;">
+
+<p>main包调用情况，点击黄色区域可以查看kcp包的调用情况（会耗时几分钟）</p>
+<img src="/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807120123267.png" class title="image-20230807120123267">
+
+<p>查看函数调用最密集的地方，也是最核心的地方，如下图便是Input，这也是kcp-go中最核心的代码</p>
+<img src="/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/image-20230807120312873.png" class title="image-20230807120312873">
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"><i class="fa fa-tag"></i> go</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/07/31/quickly-determine-whether-a-number-is-a-power-of-2/" rel="prev" title="快速判断一个数是否是2的幂次方">
+                  <i class="fa fa-chevron-left"></i> 快速判断一个数是否是2的幂次方
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
