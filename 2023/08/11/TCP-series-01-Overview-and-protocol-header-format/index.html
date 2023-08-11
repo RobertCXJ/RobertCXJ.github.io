@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="对TCP的概述以及对协议头格式的解释">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP系列01-概述及协议头格式">
+<meta property="og:url" content="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="对TCP的概述以及对协议头格式的解释">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132806686-1082325930.png">
+<meta property="og:image" content="https://robertchen.cn/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132809311-2059896218.png">
+<meta property="og:image" content="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132809967-988574516.png">
+<meta property="article:published_time" content="2023-08-11T14:37:46.000Z">
+<meta property="article:modified_time" content="2023-08-11T14:37:46.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="TCP">
+<meta property="article:tag" content="计算机网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132806686-1082325930.png">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/","path":"2023/08/11/TCP-series-01-Overview-and-protocol-header-format/","title":"TCP系列01-概述及协议头格式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>TCP系列01-概述及协议头格式 | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81TCP%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">一、TCP简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81TCP%E7%9A%84%E5%B0%81%E8%A3%85%E5%92%8C%E5%8D%8F%E8%AE%AE%E5%A4%B4%E7%9A%84%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、TCP的封装和协议头的格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81TCP%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85%E7%AA%97%E5%8F%A3%E5%92%8C%E6%BB%91%E7%AA%97"><span class="nav-number">3.</span> <span class="nav-text">三、TCP中的数据包窗口和滑窗</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="TCP系列01-概述及协议头格式 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          TCP系列01-概述及协议头格式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-08-11 22:37:46" itemprop="dateCreated datePublished" datetime="2023-08-11T22:37:46+08:00">2023-08-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/" itemprop="url" rel="index"><span itemprop="name">TCP</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>对TCP的概述以及对协议头格式的解释</p>
+<span id="more"></span>
+
+<h2 id="一、TCP简单介绍"><a href="#一、TCP简单介绍" class="headerlink" title="一、TCP简单介绍"></a>一、TCP简单介绍</h2><p>​    我们经常听人说TCP是一个面向连接的(connection-oriented)、可靠的(reliable)、字节流式(byte stream)传输协议，  TCP的这三个特性该怎么理解呢？</p>
+<ul>
+<li>面向连接：在应用TCP协议进行通信之前双方通常需要通过三次握手来建立TCP连接，连接建立后才能进行正常的数据传输，因此广播和多播不会承载在TCP协议上。(谷歌提交了一个RFC文档，建议在TCP三次握手的过程允许SYN数据包中带数据，即 TFO(TCP Fast Open)，ubuntu14.04已经支持该TFO功能)。但是同时面向连接的特性给TCP带来了复杂的连接管理以及用于检测连接状态的存活检测机制。</li>
+<li>可靠性：由于TCP处于多跳通信的IP层之上，而IP层并不提供可靠的传输，因此在TCP层看来就有四种常见传输错误问题，分别是比特错误(packet bit errors)、包乱序(packet reordering)、包重复(packet duplication)、丢包(packet erasure或称为packet drops)，TCP要提供可靠的传输，就需要有额外的机制处理这几种错误。因此个人理解可靠性体现在三个方面，首先TCP通过超时重传和快速重传两个常见手段来保证数据包的正确传输，也就是说接收端在没有收到数据包或者收到错误的数据包的时候会触发发送端的数据包重传(处理比特错误和丢包)。其次TCP接收端会缓存接收到的乱序到达数据，重排序后在向应用层提供有序的数据(处理包乱序)。最后TCP发送端会维持一个发送”窗口”动态的调整发送速率以适用接收端缓存限制和网络拥塞情况，避免了网络拥塞或者接收端缓存满而大量丢包的问题(降低丢包率)。因此可靠性需要TCP协议具有超时与重传管理、窗口管理、流量控制、拥塞控制等功能。另外TFO下TCP有可能向应用层提供重复的数据，也就是不可靠传输，但是只会发生在连接建立阶段，我们后续会进行介绍。</li>
+<li>字节流式：应用层发送的数据会在TCP的发送端缓存起来，统一分片(例如一个应用层的数据包分成两个TCP包)或者打包(例如两个或者多个应用层的数据包打包成一个TCP数据包)发送，到接收端的时候接收端也是直接按照字节流将数据传递给应用层。作为对比，同样是传输层的协议，UDP并不会对应用层的数据包进行打包和分片的操作，一般一个应用层的数据包就对应一个UDP包。这个也是伴随TCP窗口管理、拥塞控制等。</li>
+</ul>
+<p>​    在接下来的TCP系列中，我们将会依次介绍TCP协议的连接管理、超时与重传、流量控制、窗口管理、拥塞控制、存活检测等机制。在深入介绍这些内容之前我们先来看一下TCP的封装和协议头的格式(TCP&#x2F;IP的网络分层等基础网络概念本处不在介绍)</p>
+<h2 id="二、TCP的封装和协议头的格式"><a href="#二、TCP的封装和协议头的格式" class="headerlink" title="二、TCP的封装和协议头的格式"></a>二、TCP的封装和协议头的格式</h2><p>  TCP封装在IP报文中的时候，如下图所示，TCP头紧接着IP头(IPV6有扩展头的时候，则TCP头在扩展头后面)，不携带选项(option)的TCP头长为20bytes，携带选项的TCP头最长可到60bytes。</p>
+<img src="/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132806686-1082325930.png" class title="img">
+
+<p>  其中不携带选项的TCP头如下图所示(其中阴影部分的四个字段表示了相反方向的数据流信息)，其中header length字段由4比特构成，最大为15，单位是32比特(32-bit word)，即头长的最大值为15*32 bits &#x3D; 60bytes，因此上面说携带选项的TCP头长最长为60bytes。</p>
+<p><a target="_blank" rel="noopener" href="http://images2015.cnblogs.com/blog/740952/201611/740952-20161107132809311-2059896218.png"><img src="/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132809311-2059896218.png" alt="img"></a></p>
+<p>TCP头中的相关字段顺序解释如下：</p>
+<p>  **TCP源端口(Source Port)**：16位的源端口其中包含发送方应用程序对应的端口。源端口和源IP地址标示报文发送端的地址。</p>
+<p>  **TCP目的端口(Destination port)**：16位的目的端口域定义传输的目的。这个端口指明报文接收计算机上的应用程序地址接口。</p>
+<p>TCP的源端口、目的端口、以及IP层的源IP地址、目的IP地址四元组唯一的标识了一个TCP连接，一个IP地址和一个端口号的组合叫做一个endpoint或者socket。也即一对endpoint或者一对socket唯一的标识了一个TCP连接。接收端的TCP层就是根据不同的端口号来将数据包传送给应用层的不同程序，这个过程叫做解复用(demultiplex)。相应的发送端会把应用层不同程序的数据映射到不同的端口号，这个过程叫做复用(multiplex)。</p>
+<p>  <strong>TCP序列号（序列码SN,Sequence　Number）</strong>：32位的序列号标识了TCP报文中第一个byte在对应方向的传输中对应的字节序号。当SYN出现，序列码实际上是初始序列码（ISN），而第一个数据字节是ISN+1，单位是byte。比如发送端发送的一个TCP包净荷(不包含TCP头)为12byte，SN为5，则发送端接着发送的下一个数据包的时候，SN应该设置为5+12&#x3D;17。通过系列号，TCP接收端可以识别出重复接收到的TCP包，从而丢弃重复包，同时对于乱序数据包也可以依靠系列号进行重排序，进而对高层提供有序的数据流。另外SYN标志和FIN标志在逻辑上也占用一个byte，当SYN标志位有效的时候，该字段也称为ISN(initial sequence number)，详细请参考后续的TCP连接管理。</p>
+<p>  **TCP应答号(Acknowledgment  Number简称ACK Number或简称为ACK Field)**：32位的ACK Number标识了报文发送端期望接收的字节序列。如果设置了ACK控制位，这个值表示一个准备接收的包的序列码，注意是准备接收的包，比如当前接收端接收到一个净荷为12byte的数据包，SN为5，则发送端可能会回复一个确认收到的数据包，如果这个数据包之前的数据也都已经收到了，这个数据包中的ACK Number则设置为12+5&#x3D;17，表示17byte之前的数据都已经收到了。在举一个例子，如果在这个数据包之前有个SN为3，净荷为2byte的数据包丢失，则在接受端接收到这个SN为5的乱序数据包的时候，协议要求接收端必须要回复一个ACK确认包，这个确认包中的Ack Number只能设置为3。</p>
+<p>  **头长(Header Length)**：4位包括TCP头大小，指示TCP头的长度，即数据从何处开始。最大为15，单位是32比特(32-bit word)。</p>
+<p>  **保留(Reserved)**：4位值域，这些位必须是0。为了将来定义新的用途所保留，其中RFC3540将Reserved字段中的最后一位定义为Nonce标志。后续拥塞控制部分的讲解我们会简单介绍Nonce标志位。</p>
+<p>  **标志(Code Bits)**：8位标志位，下面介绍。</p>
+<p>  **窗口大小(Window Size)**：16位，该值指示了从Ack Number开始还愿意接收多少byte的数据量，也即用来表示当前接收端的接收窗还有多少剩余空间。用于TCP的流量控制。</p>
+<p>  **校验位(Checksum)**：16位TCP头。发送端基于数据内容计算一个数值，接收端要与发送端数值结果完全一样，才能证明数据的有效性。接收端checksum校验失败的时候会直接丢掉这个数据包。CheckSum是根据伪头+TCP头+TCP数据三部分进行计算的。另外对于大的数据包，checksum并不能可靠的反应比特错误，应用层应该再添加自己的校验方式。</p>
+<p>  <strong>优先指针（紧急,Urgent Pointer）</strong>：16位，指向后面是优先数据的字节，在URG标志设置了时才有效。如果URG标志没有被设置，紧急域作为填充。加快处理标示为紧急的数据段。</p>
+<p>  **选项(Option)**：长度不定，但长度必须以是32bits的整数倍。常见的选项包括MSS、SACK、Timestamp等等，后续的内容会分别介绍相关选项。</p>
+<p>在**标志(Code Bits)**中的八位标志位分别介绍如下</p>
+<p><strong>CWR(Congestion Window Reduce</strong>**)**：拥塞窗口减少标志被发送主机设置，用来表明它接收到了设置ECE标志的TCP包，发送端通过降低发送窗口的大小来降低发送速率</p>
+<p>**ECE(ECN Echo)**：ECN响应标志被用来在TCP3次握手时表明一个TCP端是具备ECN功能的，并且表明接收到的TCP包的IP头部的ECN被设置为11。更多信息请参考RFC793。</p>
+<p>**URG(Urgent)**：该标志位置位表示紧急(The urgent pointer) 标志有效。该标志位目前已经很少使用参考后面流量控制和窗口管理部分的介绍。</p>
+<p>**ACK(Acknowledgment)**：取值1代表Acknowledgment Number字段有效，这是一个确认的TCP包，取值0则不是确认包。后续文章介绍中当ACK标志位有效的时候我们称呼这个包为ACK包，使用大写的ACK称呼。</p>
+<p>**PSH(Push)**：该标志置位时，一般是表示发送端缓存中已经没有待发送的数据，接收端不将该数据进行队列处理，而是尽可能快将数据转由应用处理。在处理 telnet 或 rlogin 等交互模式的连接时，该标志总是置位的。</p>
+<p>**RST(Reset)**：用于复位相应的TCP连接。通常在发生异常或者错误的时候会触发复位TCP连接。</p>
+<p><strong>SYN(Synchronize</strong>**)**：同步序列编号(Synchronize Sequence Numbers)有效。该标志仅在三次握手建立TCP连接时有效。它提示TCP连接的服务端检查序列编号，该序列编号为TCP连接初始端(一般是客户端)的初始序列编号。在这里，可以把TCP序列编号看作是一个范围从0到4，294，967，295的32位计数器。通过TCP连接交换的数据中每一个字节都经过序列编号。在TCP报头中的序列编号栏包括了TCP分段中第一个字节的序列编号。类似的后续文章介绍中当这个SYN标志位有效的时候我们称呼这个包为SYN包。</p>
+<p>**FIN(Finish)**：带有该标志置位的数据包用来结束一个TCP会话，但对应端口仍处于开放状态，准备接收后续数据。当FIN标志有效的时候我们称呼这个包为FIN包。</p>
+<p>  另外我们一般称呼链路层的发出去的数据包为**帧(frame)<strong>，称呼网络层发给链路层的数据包为</strong>包(packet)<strong>，称呼传输层发给网络层的数据包为</strong>段(segment)**。但是正如我们描述所用，段、包、帧也经常统称为数据包或者数据报文。</p>
+<p>  对应用层来说TCP是一个双向对称的全双工(full-duplex)协议，也就是说应用层可以同时发送数据和接收数据。这就意味着数据流在一个方向上的传输是独立于另一个方向的传输的，每个方向上都有独立的SN。</p>
+<h2 id="三、TCP中的数据包窗口和滑窗"><a href="#三、TCP中的数据包窗口和滑窗" class="headerlink" title="三、TCP中的数据包窗口和滑窗"></a>三、TCP中的数据包窗口和滑窗</h2><p>  在TCP的发送端和接收端都会维持一个窗口，因为一个TCP连接是双向的，因此实际上一个TCP连接一共有四个窗口。此处我们先简单介绍一个发送端的窗口如下。图中的数字表示byte也就是和上面介绍的TCP协议头中的SN是对应的，3号byte以及3号之前的数据表示已经发送并且收到了接收端的ACK确认包的数据；4、5、6三个byte表示当前可以发送的数据包，也有可能已经已经发送了但是还没有收到ACK确认包；7号byte及之后的数据表示为了控制发送速率暂时不能发送的数据。其中4-6这三个byte就称呼为**窗口大小(window size)**。当TCP连接建立的时候，双方会通过TCP头中的窗口大小字段向对方通告自己接收端的窗口大小，发送端依据接收端通告的窗口大小来设置发送端的发送窗口大小，另外在拥塞控制的时候也是通过调整发送端的发送窗口来调整发送速率的。窗口这个词的来源就是当我们从这一个数据序列中单独看4、5、6这几个byte的时候，我们仿佛是从一个”窗口”中观察的一样。此处先简单有个滑窗的概念后续我们讲到TCP的窗口管理的时候会继续进一步介绍TCP的滑窗。</p>
+<img src="/2023/08/11/TCP-series-01-Overview-and-protocol-header-format/740952-20161107132809967-988574516.png" class title="img">
+
+<p>相关补充：<br>1、TCPIP最初传输层和IP层是同一个层的，关于网络分层的小故事可以参考<a target="_blank" rel="noopener" href="http://news.cnblogs.com/n/187131/">http://news.cnblogs.com/n/187131/</a> ， IETF上还专门有一个愚人节系列的RFC，参考<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/April_Fools'_Day_Request_for_Comments">https://en.wikipedia.org/wiki/April_Fools%27_Day_Request_for_Comments</a></p>
+<p>2、TCP头中CheckSum的计算可以参考资料</p>
+<p><a target="_blank" rel="noopener" href="http://www.roman10.net/2011/11/27/how-to-calculate-iptcpudp-checksumpart-1-theory/%E8%BF%99%E4%B8%AA%E8%BF%9E%E6%8E%A5%E9%87%8C%E9%9D%A2%E4%B8%80%E5%85%B1%E4%B8%89%E4%B8%AA%E7%B3%BB%E5%88%97%E5%88%86%E5%88%AB%E6%98%AF%E7%90%86%E8%AE%BA%E3%80%81%E5%AE%9E%E7%8E%B0%E3%80%81%E7%94%A8%E4%BE%8B%E5%92%8C%E9%AA%8C%E8%AF%81%E3%80%82">http://www.roman10.net/2011/11/27/how-to-calculate-iptcpudp-checksumpart-1-theory/这个连接里面一共三个系列分别是理论、实现、用例和验证。</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.tcpipguide.com/free/t_TCPChecksumCalculationandtheTCPPseudoHeader-2.htm">http://www.tcpipguide.com/free/t_TCPChecksumCalculationandtheTCPPseudoHeader-2.htm</a> </p>
+<p>或者参考TCPIP详解卷一第二版(暂时只有英文版，名字TCP&#x2F;IP Illustrated Volume 1 Second Edition The Protocols) P475页</p>
+<p>3、后面涉及的相关RFC文档可以去IETF官网 <a target="_blank" rel="noopener" href="http://www.ietf.org/%E6%9F%A5%E8%AF%A2">http://www.ietf.org/查询</a> 直接搜索RFC号码就行了。整个TCP相关的协议体系，IETF梳理后在2015年以RFC7414发布，想了解或者查询TCP相关RFC协议的可以先看看RFC7414协议，以对整个TCP协议有个概括了解</p>
+<p>4、目前linux4.4实现上还不支持Nonce标志，可以参考内核代码中<em>struct tcphdr</em>结构对TCP头的定义。关于Llinux不同版本内核TCP实现相关的更新可以查看linux的changelog，网址<a target="_blank" rel="noopener" href="https://kernelnewbies.org/LinuxVersions">https://kernelnewbies.org/LinuxVersions</a> 其中有每个版本的changelog 还有对应的修改代码</p>
+<p>5、TCP传输中的包重复，不见得是TCP重传导致的，也可能是因为IP层提供的不可靠传输导致的 <a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/12871760/packet-loss-and-packet-duplication">http://stackoverflow.com/questions/12871760/packet-loss-and-packet-duplication</a></p>
+<p>6、在网络传输过程中NAT可能会修改checksum甚至系列号seq，后面我们讨论窗口管理等内容的时候为了简化不考虑nat修改seq的场景，即认为发送端发包的seq与接收端接收这个包的时候seq相同。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/TCP/" rel="tag"><i class="fa fa-tag"></i> TCP</a>
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag"><i class="fa fa-tag"></i> 计算机网络</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/08/06/how-to-use-go-callvis-to-see-how-funtion-are-made/" rel="prev" title="使用go-callvis查看函数调用流程">
+                  <i class="fa fa-chevron-left"></i> 使用go-callvis查看函数调用流程
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
