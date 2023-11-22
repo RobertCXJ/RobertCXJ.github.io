@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在使用sql的过程中经常需要建立索引，而每种索引是怎么触发的又是怎么起到作用的，首先必须知道索引和索引的类型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="索引type说明">
+<meta property="og:url" content="https://robertchen.cn/2023/11/22/index-type-description/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="在使用sql的过程中经常需要建立索引，而每种索引是怎么触发的又是怎么起到作用的，首先必须知道索引和索引的类型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143541932-674488725.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143549230-45717682.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143554134-686833777.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143613568-1424280825.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143622009-1263643692.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143635585-1298799422.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143641792-1375317565.png">
+<meta property="og:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143647380-1518567754.png">
+<meta property="article:published_time" content="2023-11-22T02:47:07.000Z">
+<meta property="article:modified_time" content="2023-11-22T02:47:07.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/11/22/index-type-description/782972-20190425143541932-674488725.png">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/11/22/index-type-description/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/11/22/index-type-description/","path":"2023/11/22/index-type-description/","title":"索引type说明"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>索引type说明 | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Type%E7%BA%A7%E5%88%AB%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">Type级别详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80-system%E7%BA%A7%E5%88%AB"><span class="nav-number">1.1.</span> <span class="nav-text">一.system级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C-const%E7%BA%A7%E5%88%AB"><span class="nav-number">1.2.</span> <span class="nav-text">二.const级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89-eq-ref%E7%BA%A7%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">三.eq_ref级别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A5%E4%B8%8A%E7%BA%A7%E5%88%AB%EF%BC%8C%E5%9D%87%E6%98%AF%E5%8F%AF%E9%81%87%E4%B8%8D%E5%8F%AF%E6%B1%82%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="nav-number">1.3.1.</span> <span class="nav-text">以上级别，均是可遇不可求！！！！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B-ref%E7%BA%A7%E5%88%AB"><span class="nav-number">1.4.</span> <span class="nav-text">四 .ref级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94-range%E7%BA%A7%E5%88%AB"><span class="nav-number">1.5.</span> <span class="nav-text">五.range级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD-index%E7%BA%A7%E5%88%AB"><span class="nav-number">1.6.</span> <span class="nav-text">六.index级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83-ALL%E7%BA%A7%E5%88%AB"><span class="nav-number">1.7.</span> <span class="nav-text">七.ALL级别</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/11/22/index-type-description/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="索引type说明 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          索引type说明
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-22 10:47:07" itemprop="dateCreated datePublished" datetime="2023-11-22T10:47:07+08:00">2023-11-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>在使用sql的过程中经常需要建立索引，而每种索引是怎么触发的又是怎么起到作用的，首先必须知道索引和索引的类型。</p>
+<span id="more"></span>
+
+ <img src="/2023/11/22/index-type-description/782972-20190425143541932-674488725.png" class title="img">
+
+<p>我们可以清楚的看到type那一栏有index ALL eq_ref，他们都代表什么意思呢？</p>
+<p>首先类型有许多，这里我只给大家介绍用的最多的几种类型：</p>
+<p><strong>system&gt;const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;ALL</strong></p>
+<p>越往左边，性能越高，<strong>比如system就比ALL类型性能要高出许多</strong>，其中system、const只是理想类型，基本达不到；</p>
+<p>我们自己实际能优化到ref&gt;range这两个类型，就是你自己写SQL，如果你没优化基本上就是ALL，如果你优化了，那就尽量达到<strong>ref&gt;range</strong>这两个级别；</p>
+<p><strong>左边基本达不到！</strong></p>
+<p>所以，要对type优化的前提是，**你需要有索引，如果你连索引都没有创建，那你就不用优化了，肯定是ALL…..**；</p>
+<h2 id="Type级别详解"><a href="#Type级别详解" class="headerlink" title="Type级别详解"></a><strong>Type级别详解</strong></h2><h3 id="一-system级别"><a href="#一-system级别" class="headerlink" title="一.system级别"></a><strong>一.system级别</strong></h3><p>索引类型能是system的只有两种情况：</p>
+<p><strong>1.只有一条数据的系统表</strong></p>
+<p>只有一条数据的系统表，就是系统里自带一张表，并且这个表就一条数据，这个基本上就达不到，这个是系统自带的表，而且就一条数据，所以基本达不到；</p>
+<p><strong>2.或衍生表只能有一条数据的主查询</strong></p>
+<p>这个是可以实现的，但是在实际开发当中，你不可能去写一个这么个玩意儿，不可能公司的业务去让你把SQL索引类型写实system…</p>
+<p>SQL语句:select * From (select * From test01) t where tid &#x3D; 1;&#x2F;&#x2F;前面需要加explain</p>
+<p>执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143549230-45717682.png" class title="img">
+
+<p>就是把它凑出来即可；</p>
+<p>我之所以能达到system，是因为我满足了它的第二个条件；</p>
+<h3 id="二-const级别"><a href="#二-const级别" class="headerlink" title="二.const级别"></a><strong>二.const级别</strong></h3><p>const条件稍微低一点，<strong>但是基本上也达不到；</strong></p>
+<p><strong>1.仅仅能查出一条的SQL语句并且用于Primary key 或 unique索引；</strong></p>
+<p>这个我就不说了把，都知道，所以在企业里根本不可能实现，能查出来一条SQL语句，你的索引还必须是Primary key或unique；</p>
+<p>SQL语句：select * tid From test01 where tid &#x3D; 1;&#x2F;&#x2F;前面需要加explain</p>
+<p>执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143554134-686833777.png" class title="img">
+
+<p><strong>根据tid找，因为tid是我设置的主键，主键就是Primary key，并且只能有一条数据，我表里面本来就一条，所以我满足了；</strong></p>
+<h3 id="三-eq-ref级别"><a href="#三-eq-ref级别" class="headerlink" title="三.eq_ref级别"></a><strong>三.eq_ref级别</strong></h3><p><strong>唯一性索引：对于每个索引键的查询，返回</strong> <strong>匹配唯一行数据（有且只有1个，不能多，不能0）;</strong></p>
+<p>解说：比如你select …from 一张表 where 比方说有一个字段 name &#x3D; 一个东西，也就是我们以name作为索引，假设我之前给name加了一个索引值，我现在根据name去查，查完后有20条数据，我就必须保证这二十条数据每行都是唯一的，不能重复不能为空！</p>
+<p><strong>只要满足以上条件，你就能达到eq_ref，当然前提是你要给name建索引，如果name连索引都没，那你肯定达不到eq_ref;</strong></p>
+<p>此种情况常见于唯一索引和主键索引；</p>
+<p>比如我根据name去查，但是一个公司里面或一个学校里面叫name的可能不止一个，一般你想用这个的时候，就要确保你这个字段是唯一的，id就可以，你可以重复两个张三，但是你身份证肯定不会重复；</p>
+<p><strong>添加唯一键语法：alter table 表名 add constraint 索引名 unique index(列名)</strong></p>
+<p>检查字段是否唯一键：show index form 表名；被展示出来的皆是有唯一约束的；</p>
+<h4 id="以上级别，均是可遇不可求！！！！"><a href="#以上级别，均是可遇不可求！！！！" class="headerlink" title="以上级别，均是可遇不可求！！！！"></a><strong>以上级别，均是可遇不可求！！！！</strong></h4><h3 id="四-ref级别"><a href="#四-ref级别" class="headerlink" title="四 .ref级别"></a><strong>四 .ref级别</strong></h3><p>到ref还是问题不大的，<strong>只要你上点心，就可以达到</strong>；</p>
+<p><strong>非唯一性索引：对于每个索引键的查询，返回匹配的所有行（可以是0，或多个）</strong></p>
+<p>假设我现在要根据name查询，首先name可能有多个，因为一个公司或学校叫小明的不止一个人，但是你要用name去查，你必须name是索引，我们先给它加个索引，因为要达到ref级别，所以这里我给它加一个<strong>单值索引</strong>，</p>
+<p><strong>单值索引语法：alter table 表名 索引类型 索引名（字段）</strong></p>
+<p>现在我们根据索引来查数据，这里我假设我写的单值索引；</p>
+<p>alter table student add index index_name (name);</p>
+<p>这个时候我们再去编写sql语句：</p>
+<p>alter table student add index index_name (name);</p>
+<p><strong>因为name是索引列，这里假设有两个叫张三的，ref级别规则就是能查出多个或0个，很显然能查出来多个，那这条SQL语句，必然是ref级别！</strong></p>
+<p>执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143613568-1424280825.png" class title="img">
+
+<p>数据：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143622009-1263643692.png" class title="img">
+
+<h3 id="五-range级别"><a href="#五-range级别" class="headerlink" title="五.range级别"></a><strong>五.range级别</strong></h3><p>检索指定范围的行，查找一个范围内的数据，where后面是一个范围查询 （between,in,&gt; &lt; &gt;&#x3D;);</p>
+<p>注：in 有时会失效，导致为ALL；</p>
+<p>现在我们写一个查询语句，前提是，tid一定是一个索引列，如果是id的话，就用主键索引，也就是唯一索引，值不可以重复，这个时候我们范围查询的时候要用它来做条件：</p>
+<p> EXPLAIN SELECT t.* FROM student t WHERE t.tid BETWEEN 1 AND 2; ;&#x2F;&#x2F;查询tid是1到2；</p>
+<p>查看执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143635585-1298799422.png" class title="img">
+
+<h3 id="六-index级别"><a href="#六-index级别" class="headerlink" title="六.index级别"></a><strong>六.index级别</strong></h3><p>查询全部索引中的数据</p>
+<p>讲解：假设我有一张表，里面有id name age，这个时候name是一个单值索引，一旦name被设定成索引，*<em>它就会成为B树一样，经过各种算法将name里面的值像树一样进行分类，这个时候我where name &#x3D; *<em>，就相当于把这颗B树查了一个遍，</em></em></p>
+<p><strong>也就是说，你把name这一列给查了一遍；</strong></p>
+<p>SQL语句：select id From student;&#x2F;&#x2F;我只查被索引声明的列，必然就是index了；</p>
+<p>执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143641792-1375317565.png" class title="img">
+
+<h3 id="七-ALL级别"><a href="#七-ALL级别" class="headerlink" title="七.ALL级别"></a><strong>七.ALL级别</strong></h3><p>查询全部表数据，就是select name From student;</p>
+<p>其中 name 不是索引；</p>
+<p>如果你查的这一列不是索引，就会导致全表扫描，<strong>所以要避免全表扫描</strong>；</p>
+<p>执行结果：</p>
+ <img src="/2023/11/22/index-type-description/782972-20190425143647380-1518567754.png" class title="img">
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"><i class="fa fa-tag"></i> 数据库</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/21/Comparison-of-properties-between-B-tree-and-B-tree/" rel="prev" title="B树和B+树性质对比">
+                  <i class="fa fa-chevron-left"></i> B树和B+树性质对比
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
