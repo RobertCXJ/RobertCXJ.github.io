@@ -249,21 +249,14 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>RocketMQ安装文档，单机版和集群版</p>
-<h2 id="单机版"><a href="#单机版" class="headerlink" title="单机版"></a>单机版</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 拉取最新镜像</span><br><span class="line">docker pull xuchengen/rocketmq:latest</span><br><span class="line"></span><br><span class="line"># Linux</span><br><span class="line"># --net=host 是使用宿主机端口，可以不用挂载</span><br><span class="line">docker run -itd \</span><br><span class="line">--name=rocketmq-standalone \</span><br><span class="line">--hostname rocketmq-standalone \</span><br><span class="line">-v /data/rocketmq-standalone:/usr/local/rocketmq/data \</span><br><span class="line">-v /etc/localtime:/etc/localtime \</span><br><span class="line">-v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">--net=host \</span><br><span class="line">xuchengen/rocketmq:latest</span><br><span class="line"></span><br><span class="line"># 监听端口解析</span><br><span class="line">-p 8080:8080 \ # 控制台监听的端口(已经配置好，无法修改)</span><br><span class="line">-p 9876:9876 \ # NameServer监听的端口</span><br><span class="line">-p 10909:10909 \ # Broker监听的端口，fastRemotingServer使用的端口，当vipChannelEnable开启时，才会使用该端口</span><br><span class="line">-p 10911:10911 \ # Broker监听的端口，remotingServer使用的端口，主要处理生产和消费数据等操作</span><br><span class="line">-p 10912:10912 \ # Broker监听的端口，主要用于Broker集群间数据通讯</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>会出现以下错误，暂时无法解决</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RocketMQLog:WARN No appenders could be found for logger (io.netty.util.internal.PlatformDependent0)</span><br></pre></td></tr></table></figure>
-
-<h2 id="集群版"><a href="#集群版" class="headerlink" title="集群版"></a>集群版</h2><h3 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull rocketmqinc/rocketmq:4.4.0</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建NameServer"><a href="#创建NameServer" class="headerlink" title="创建NameServer"></a>创建NameServer</h3><p>创建相关目录</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name RocketMQNamesrv \</span><br><span class="line">-p 9876:9876 \</span><br><span class="line">-v /data/rocketmq/namesrv/conf:/root/config \</span><br><span class="line">-v /data/rocketmq/namesrv/logs:/root/logs \</span><br><span class="line">-v /data/rocketmq/namesrv/store:/root/store \</span><br><span class="line">-e &quot;JAVA_OPTS=-Duser.home=/opt&quot; \</span><br><span class="line">rocketmqinc/rocketmq:4.4.0 \</span><br><span class="line">sh mqnamesrv </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="启动broker"><a href="#启动broker" class="headerlink" title="启动broker"></a>启动broker</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d  --name RocketMQBroker --link RocketMQNamesrv:namesrv -p 10911:10911 -p 10909:10909 -v  /data/rocketmq/broker/logs:/root/logs -v /data/rocketmq/broker/store:/root/store -v /data/rocketmq/broker/conf/broker.conf:/opt/rocketmq-4.4.0/conf/broker.conf --privileged=true -e &quot;NAMESRV_ADDR=namesrv:9876&quot; -e &quot;MAX_POSSIBLE_HEAP=200000000&quot; rocketmqinc/rocketmq:4.4.0 sh mqbroker -c /opt/rocketmq-4.4.0/conf/broker.conf</span><br></pre></td></tr></table></figure>
-
-<h3 id="启动控制台"><a href="#启动控制台" class="headerlink" title="启动控制台"></a>启动控制台</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name rmqadmin -e &quot;JAVA_OPTS=-Drocketmq.namesrv.addr=117.72.42.114:9876 \</span><br><span class="line">-Dcom.rocketmq.sendMessageWithVIPChannel=false \</span><br><span class="line">-Duser.timezone=&#x27;Asia/Shanghai&#x27;&quot; -v /etc/localtime:/etc/localtime -p 9999:8080 styletang/rocketmq-console-ng</span><br></pre></td></tr></table></figure>
-
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/11/24/rocketmq-installation-document/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -341,36 +334,14 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>MySQL的InnoDB的三层B+树可以存储两千万左右条数据的计算逻辑</p>
-<p>B+树是一种在非叶子节点存放排序好的索引而在叶子节点存放数据的<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/techpedia/1914?from_column=20065&from=20065">数据结构</a>，值得注意的是，在叶子节点中，存储的并非只是一行表数据，而是以页为单位存储，一个页可以包含多行表记录。非叶子节点存放的是索引键值和页指针。</p>
-<p>那么，在MySql<a target="_blank" rel="noopener" href="https://cloud.tencent.com/solution/database?from_column=20065&from=20065">数据库</a>里，一个页的大小是多少呢？</p>
-<p>可以通过查询语句进行查看：show variables like ‘innodb_page_size’</p>
-<img src="/2023/11/23/How-much-data-can-Innodb-three-layer-B-tree-store/c71b1631591ce034f0e237cdee6a8392.png" class title="img">
-
-<p>查询结果16384字节，可以通过1kb等于1024字节方式，计算出16384&#x2F;1024 &#x3D; 16kb，说明MySql数据库默认页大小是16kb。</p>
-<p>假设一行数据占用1kb的空间大小，然而实际上，除去字段很多的宽表外，其实很多简单的表行记录都远达不到1kb空间占比。这里我们用最坏的情况来假设一行记录大小为1kb，那么，一个16kb的页就可以存储16行数据。</p>
-<p>接下来，我们先画一个只要两层高的B+树结构图。</p>
-<p>假设第一层根节点存在以下情况：索引1对应页指针地址10，索引5对应页指针地址30，索引8对应页指针地址50。</p>
-<p>第二层节点作为叶子节点，存放的是大小为16kb的页数据，页数据里每一行记录大小为1kb，那么，一个叶子节点的页里就可以存放16条数据。</p>
-<img src="/2023/11/23/How-much-data-can-Innodb-three-layer-B-tree-store/7e003edf803677a6b0db1ef9c74faa3f.png" class title="img">
-
-<p>既然已经知道一个叶子节点的页中可以存放16条数据，那么，只需要知道根节点存在多少页地址指针即可，就能通过 “根节点页地址指针数量 * 单个叶子节点记录行数”。</p>
-<p>那么，根节点能存放多少个 索引：页地址指针的数据呢？</p>
-<p>在一个节点大小为16kb的情况下，我们只需要知道索引键值和页地址指针两者大小总和即可。</p>
-<p>根据一些资料得知，在MySql数据库当中，指针地址大小为6字节，若索引是bigint类型，那么就为8字节，两者加起来总共是14字节。</p>
-<p>接下来，通过以下计算步骤，就可以统计出两层的B+数大概可以存储多少条记录数据——</p>
-<p>一、先计算一个节点的字节大小：16kb * 1024 &#x3D; 16384 字节。</p>
-<p>二、16384 字节 &#x2F; 14 字节 &#x3D; 1170 ，意味着，根节点有1170个页地址指针，然后，每个页地址指针指向的叶子节点可以存放16条数据。</p>
-<p>三、那么，根据“根节点页地址指针数量 * 单个叶子节点记录行数”，计算1170 * 16 &#x3D; 18720 条记录，可见，两层B+数可以存放18720条记录，当然，这个数字是存在出入的，只是作为参考。</p>
-<p>既然已经知道两层B+数可以存放18720条数据，那么，三层不就可以进一步算出了吗？</p>
-<p>简单画一个三层B+数的存放数据计算逻辑——</p>
-<img src="/2023/11/23/How-much-data-can-Innodb-three-layer-B-tree-store/991e1afc21d4c4cd233a5c913d79cfc2.png" class title="img">
-
-<p>一、根节点最多有1170个指针数；</p>
-<p>二、说明第二层最多会有1170个子节点，同时，每个子节点里最多有1170个指针数；</p>
-<p>三、那么，第三层叶节点数量，可以通过 “第二层最多有1170个节点数量 * 每个节点里最多有1170个指针数量”，也就是1170 * 1170</p>
-<p>四、最后，计算第三层所有叶子数量 * 各个叶子节点存放的16条数据；</p>
-<p>最后，1170 * 1170 * 16 &#x3D; 21902400，得出两千万左右条数据。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/11/23/How-much-data-can-Innodb-three-layer-B-tree-store/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
