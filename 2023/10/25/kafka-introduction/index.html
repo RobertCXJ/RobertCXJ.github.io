@@ -22,49 +22,49 @@
 
     <meta name="description" content="Kafka入门简介">
 <meta property="og:type" content="article">
-<meta property="og:title" content="kafka introduction">
-<meta property="og:url" content="https://robertchen.cn/2023/11/25/kafka-introduction/index.html">
+<meta property="og:title" content="kafka入门">
+<meta property="og:url" content="https://robertchen.cn/2023/10/25/kafka-introduction/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
 <meta property="og:description" content="Kafka入门简介">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124302477-591839175.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124315609-278424659.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124324041-1692198328.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124332321-1116151795.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124342983-1550748707.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124404917-1128362623.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/01.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/02.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124446431-1399551981.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/04.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/05.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/06.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/07.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124510141-287877636.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124523391-1428148798.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124532591-676030370.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124543543-1532704944.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124553311-1167412207.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124603277-431025951.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124619917-951347964.png">
-<meta property="og:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124627673-1587568519.png">
-<meta property="article:published_time" content="2023-11-25T15:10:45.000Z">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124302477-591839175.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124315609-278424659.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124324041-1692198328.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124332321-1116151795.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124342983-1550748707.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124404917-1128362623.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/01.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/02.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124446431-1399551981.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/04.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/05.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/06.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/07.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124510141-287877636.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124523391-1428148798.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124532591-676030370.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124543543-1532704944.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124553311-1167412207.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124603277-431025951.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124619917-951347964.png">
+<meta property="og:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124627673-1587568519.png">
+<meta property="article:published_time" content="2023-10-25T15:10:45.000Z">
 <meta property="article:modified_time" content="2023-11-25T15:10:45.000Z">
 <meta property="article:author" content="Robert">
 <meta property="article:tag" content="消息队列">
 <meta property="article:tag" content="Kafka">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://robertchen.cn/2023/11/25/kafka-introduction/1515111-20191128124302477-591839175.png">
+<meta name="twitter:image" content="https://robertchen.cn/2023/10/25/kafka-introduction/1515111-20191128124302477-591839175.png">
 
 
-<link rel="canonical" href="https://robertchen.cn/2023/11/25/kafka-introduction/">
+<link rel="canonical" href="https://robertchen.cn/2023/10/25/kafka-introduction/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/11/25/kafka-introduction/","path":"2023/11/25/kafka-introduction/","title":"kafka introduction"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/10/25/kafka-introduction/","path":"2023/10/25/kafka-introduction/","title":"kafka入门"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>kafka introduction | Robert's blog</title>
+<title>kafka入门 | Robert's blog</title>
   
 
 
@@ -221,7 +221,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/11/25/kafka-introduction/">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/10/25/kafka-introduction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/spike.jpg">
@@ -234,12 +234,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="kafka introduction | Robert's blog">
+      <meta itemprop="name" content="kafka入门 | Robert's blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          kafka introduction
+          kafka入门
         </h1>
 
         <div class="post-meta-container">
@@ -250,7 +250,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-11-25 23:10:45" itemprop="dateCreated datePublished" datetime="2023-11-25T23:10:45+08:00">2023-11-25</time>
+      <time title="创建时间：2023-10-25 23:10:45" itemprop="dateCreated datePublished" datetime="2023-10-25T23:10:45+08:00">2023-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 23:10:45" itemprop="dateModified" datetime="2023-11-25T23:10:45+08:00">2023-11-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -291,12 +298,12 @@
 <p>批次：为了提高效率， 消息会<code>分批次</code>写入 Kafka，批次就代指的是一组消息。</p>
 <p>主题：消息的种类称为 <code>主题</code>（Topic）,可以说一个主题代表了一类消息。相当于是对消息进行分类。主题就像是数据库中的表。</p>
 <p>分区：主题可以被分为若干个分区（partition），同一个主题中的分区可以不在一个机器上，有可能会部署在多个机器上，由此来实现 kafka 的<code>伸缩性</code>，单一主题中的分区有序，但是无法保证主题中所有的分区有序</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124302477-591839175.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124302477-591839175.png" class title="img">
 
 <p>生产者： 向主题发布消息的客户端应用程序称为<code>生产者</code>（Producer），生产者用于持续不断的向某个主题发送消息。</p>
 <p>消费者：订阅主题消息的客户端程序称为<code>消费者</code>（Consumer），消费者用于处理生产者产生的消息。</p>
 <p>消费者群组：生产者与消费者的关系就如同餐厅中的厨师和顾客之间的关系一样，一个厨师对应多个顾客，也就是一个生产者对应多个消费者，<code>消费者群组</code>（Consumer Group）指的就是由一个或多个消费者组成的群体。</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124315609-278424659.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124315609-278424659.png" class title="img">
 
 <p>偏移量：<code>偏移量</code>（Consumer Offset）是一种元数据，它是一个不断递增的整数值，用来记录消费者发生重平衡时的位置，以便用来恢复数据。</p>
 <p>broker: 一个独立的 Kafka 服务器就被称为 <code>broker</code>，broker 接收来自生产者的消息，为消息设置偏移量，并提交消息到磁盘保存。</p>
@@ -320,12 +327,12 @@
 </ul>
 <h3 id="Kafka-的消息队列"><a href="#Kafka-的消息队列" class="headerlink" title="Kafka 的消息队列"></a>Kafka 的消息队列</h3><p>Kafka 的消息队列一般分为两种模式：点对点模式和发布订阅模式</p>
 <p>Kafka 是支持消费者群组的，也就是说 Kafka 中会有一个或者多个消费者，如果一个生产者生产的消息由一个消费者进行消费的话，那么这种模式就是点对点模式</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124324041-1692198328.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124324041-1692198328.png" class title="img">
 
 <p>如果一个生产者或者多个生产者产生的消息能够被多个消费者同时消费的情况，这样的消息队列成为发布订阅模式的消息队列</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124332321-1116151795.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124332321-1116151795.png" class title="img">
 
-<h3 id="Kafka-系统架构"><a href="#Kafka-系统架构" class="headerlink" title="Kafka 系统架构"></a>Kafka 系统架构</h3><img src="/2023/11/25/kafka-introduction/1515111-20191128124342983-1550748707.png" class title="img">
+<h3 id="Kafka-系统架构"><a href="#Kafka-系统架构" class="headerlink" title="Kafka 系统架构"></a>Kafka 系统架构</h3><img src="/2023/10/25/kafka-introduction/1515111-20191128124342983-1550748707.png" class title="img">
 
 <p>如上图所示，一个典型的 Kafka 集群中包含若干Producer（可以是web前端产生的Page View，或者是服务器日志，系统CPU、Memory等），若干broker（Kafka支持水平扩展，一般broker数量越多，集群吞吐率越高），若干Consumer Group，以及一个Zookeeper集群。Kafka通过Zookeeper管理集群配置，选举leader，以及在Consumer Group发生变化时进行rebalance。Producer使用push模式将消息发布到broker，Consumer使用pull模式从broker订阅并消费消息。</p>
 <h3 id="核心-API"><a href="#核心-API" class="headerlink" title="核心 API"></a>核心 API</h3><p>Kafka 有四个核心API，它们分别是</p>
@@ -335,7 +342,7 @@
 <li>Streams API，它允许应用程序作为流处理器，从一个或多个主题中消费输入流并为其生成输出流，有效的将输入流转换为输出流。</li>
 <li>Connector API，它允许构建和运行将 Kafka 主题连接到现有应用程序或数据系统的可用生产者和消费者。例如，关系数据库的连接器可能会捕获对表的所有更改</li>
 </ul>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124404917-1128362623.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124404917-1128362623.png" class title="img">
 
 <h3 id="Kafka-为何如此之快"><a href="#Kafka-为何如此之快" class="headerlink" title="Kafka 为何如此之快"></a>Kafka 为何如此之快</h3><p>Kafka 实现了<code>零拷贝</code>原理来快速移动数据，避免了内核之间的切换。Kafka 可以将数据记录分批发送，从生产者到文件系统（Kafka 主题日志）到消费者，可以端到端的查看这些批次的数据。</p>
 <p>批处理能够进行更有效的数据压缩并减少 I&#x2F;O 延迟，Kafka 采取顺序写入磁盘的方式，避免了随机磁盘寻址的浪费，更多关于磁盘寻址的了解，请参阅 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU2NDg0OTgyMA==&mid=2247484654&idx=1&sn=9b6f5aaad05a49416e8f30e6b86691ae&chksm=fc45f91dcb32700b683b9a13d0d94d261171d346333d73967a4d501de3ecc273d67e8251aeae&token=674527772&lang=zh_CN#rd">程序员需要了解的硬核知识之磁盘</a> 。</p>
@@ -443,7 +450,7 @@
 <p>该参数指定了 G1 启动新一轮垃圾回收之前可以使用的堆内存百分比，默认值是45，这就表明G1在堆使用率到达45之前不会启用垃圾回收。这个百分比包括新生代和老年代。</p>
 <h2 id="Kafka-Producer"><a href="#Kafka-Producer" class="headerlink" title="Kafka Producer"></a>Kafka Producer</h2><p>在 Kafka 中，我们把产生消息的那一方称为<code>生产者</code>，比如我们经常回去淘宝购物，你打开淘宝的那一刻，你的登陆信息，登陆次数都会作为消息传输到 Kafka 后台，当你浏览购物的时候，你的浏览信息，你的搜索指数，你的购物爱好都会作为一个个消息传递给 Kafka 后台，然后淘宝会根据你的爱好做智能推荐，致使你的钱包从来都禁不住诱惑，那么这些生产者产生的<code>消息</code>是怎么传到 Kafka 应用程序的呢？发送过程是怎么样的呢？</p>
 <p>尽管消息的产生非常简单，但是消息的发送过程还是比较复杂的，如图</p>
-<img src="/2023/11/25/kafka-introduction/01.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/01.png" class title="img">
 
 <p>我们从创建一个<code>ProducerRecord</code> 对象开始，ProducerRecord 是 Kafka 中的一个核心类，它代表了一组 Kafka 需要发送的 <code>key/value</code> 键值对，它由记录要发送到的主题名称（Topic Name），可选的分区号（Partition Number）以及可选的键值对构成。</p>
 <p>在发送 ProducerRecord 时，我们需要将键值对对象由序列化器转换为字节数组，这样它们才能够在网络上传输。然后消息到达了分区器。</p>
@@ -487,7 +494,7 @@
 
 <p>这个构造函数，需要传递的是 topic主题，key 和 value。</p>
 <p>把对应的参数传递完成后，生产者调用 send() 方法发送消息（ProducerRecord对象）。我们可以从生产者的架构图中看出，消息是先被写入分区中的缓冲区中，然后分批次发送给 Kafka Broker。</p>
-<img src="/2023/11/25/kafka-introduction/02.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/02.png" class title="img">
 
 <p>发送成功后，send() 方法会返回一个 <code>Future(java.util.concurrent)</code> 对象，Future 对象的类型是 <code>RecordMetadata</code> 类型，我们上面这段代码没有考虑返回值，所以没有生成对应的 Future 对象，所以没有办法知道消息是否发送成功。如果不是很重要的信息或者对结果不会产生影响的信息，可以使用这种方式进行发送。</p>
 <p>我们可以忽略发送消息时可能发生的错误或者在服务器端可能发生的错误，但在消息发送之前，生产者还可能发生其他的异常。这些异常有可能是 <code>SerializationException(序列化失败)</code>，<code>BufferedExhaustedException 或 TimeoutException(说明缓冲区已满)</code>，又或是 <code>InterruptedException(说明发送线程被中断)</code></p>
@@ -518,12 +525,12 @@
 <p>其中与分区策略息息相关的就是 partition() 方法了，分区策略有下面这几种</p>
 <p><strong>顺序轮询</strong></p>
 <p>顺序分配，消息是均匀的分配给每个 partition，即每个分区存储一次消息。就像下面这样</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124446431-1399551981.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124446431-1399551981.png" class title="img">
 
 <p>上图表示的就是轮询策略，轮训策略是 Kafka Producer 提供的默认策略，如果你不使用指定的轮训策略的话，Kafka 默认会使用顺序轮训策略的方式。</p>
 <p><strong>随机轮询</strong></p>
 <p>随机轮询简而言之就是随机的向 partition 中保存消息，如下图所示</p>
-<img src="/2023/11/25/kafka-introduction/04.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/04.png" class title="img">
 
 <p>实现随机分配的代码只需要两行，如下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);</span><br><span class="line"><span class="keyword">return</span> ThreadLocalRandom.current().nextInt(partitions.size());</span><br></pre></td></tr></table></figure>
@@ -532,7 +539,7 @@
 <p>本质上看随机策略也是力求将数据均匀地打散到各个分区，但从实际表现来看，它要逊于轮询策略，所以<strong>如果追求数据的均匀分布，还是使用轮询策略比较好</strong>。事实上，随机策略是老版本生产者使用的分区策略，在新版本中已经改为轮询了。</p>
 <p><strong>按照 key 进行消息保存</strong></p>
 <p>这个策略也叫做 <strong>key-ordering</strong> 策略，Kafka 中每条消息都会有自己的key，一旦消息被定义了 Key，那么你就可以保证同一个 Key 的所有消息都进入到相同的分区里面，由于每个分区下的消息处理都是有顺序的，故这个策略被称为按消息键保序策略，如下图所示</p>
-<img src="/2023/11/25/kafka-introduction/05.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/05.png" class title="img">
 
 <p>实现这个策略的 partition 方法同样简单，只需要下面两行代码即可：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);</span><br><span class="line"><span class="keyword">return</span> Math.abs(key.hashCode()) % partitions.size();</span><br></pre></td></tr></table></figure>
@@ -562,9 +569,9 @@
 <p>此参数用来设置生产者内存缓冲区的大小，生产者用它缓冲要发送到服务器的消息。如果应用程序发送消息的速度超过发送到服务器的速度，会导致生产者空间不足。这个时候，send() 方法调用要么被阻塞，要么抛出异常，具体取决于 <code>block.on.buffer.null</code> 参数的设置。</p>
 <p><strong>compression.type</strong></p>
 <p>此参数来表示生产者启用何种压缩算法，默认情况下，消息发送时不会被压缩。该参数可以设置为 snappy、gzip 和 lz4，它指定了消息发送给 broker 之前使用哪一种压缩算法进行压缩。下面是各压缩算法的对比</p>
-<img src="/2023/11/25/kafka-introduction/06.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/06.png" class title="img">
 
-<img src="/2023/11/25/kafka-introduction/07.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/07.png" class title="img">
 
 <p><strong>retries</strong></p>
 <p>生产者从服务器收到的错误有可能是临时性的错误（比如分区找不到首领），在这种情况下，<code>reteis</code> 参数的值决定了生产者可以重发的消息次数，如果达到这个次数，生产者会放弃重试并返回错误。默认情况下，生产者在每次重试之间等待 100ms，这个等待参数可以通过 <code>retry.backoff.ms</code> 进行修改。</p>
@@ -584,20 +591,20 @@
 <p>Kafka 是基于 TCP 实现的，为了保证可靠的消息传输，这两个参数分别指定了 TCP Socket 接收和发送数据包的缓冲区的大小。如果它们被设置为 -1，就使用操作系统的默认值。如果生产者或消费者与 broker 处于不同的数据中心，那么可以适当增大这些值。</p>
 <h2 id="Kafka-Consumer"><a href="#Kafka-Consumer" class="headerlink" title="Kafka Consumer"></a>Kafka Consumer</h2><p>应用程序使用 <code>KafkaConsumer</code> 从 Kafka 中订阅主题并接收来自这些主题的消息，然后再把他们保存起来。应用程序首先需要创建一个 KafkaConsumer 对象，订阅主题并开始接受消息，验证消息并保存结果。一段时间后，生产者往主题写入的速度超过了应用程序验证数据的速度，这时候该如何处理？如果只使用单个消费者的话，应用程序会跟不上消息生成的速度，就像多个生产者像相同的主题写入消息一样，这时候就需要多个消费者共同参与消费主题中的消息，对消息进行分流处理。</p>
 <p>Kafka 消费者从属于<code>消费者群组</code>。一个群组中的消费者订阅的都是<code>相同</code>的主题，每个消费者接收主题一部分分区的消息。下面是一个 Kafka 分区消费示意图</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124510141-287877636.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124510141-287877636.png" class title="img">
 
 <p>上图中的主题 T1 有四个分区，分别是分区0、分区1、分区2、分区3，我们创建一个消费者群组1，消费者群组中只有一个消费者，它订阅主题T1，接收到 T1 中的全部消息。由于一个消费者处理四个生产者发送到分区的消息，压力有些大，需要帮手来帮忙分担任务，于是就演变为下图</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124523391-1428148798.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124523391-1428148798.png" class title="img">
 
 <p>这样一来，消费者的消费能力就大大提高了，但是在某些环境下比如用户产生消息特别多的时候，生产者产生的消息仍旧让消费者吃不消，那就继续增加消费者。</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124532591-676030370.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124532591-676030370.png" class title="img">
 
 <p>如上图所示，每个分区所产生的消息能够被每个消费者群组中的消费者消费，如果向消费者群组中增加更多的消费者，那么多余的消费者将会闲置，如下图所示</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124543543-1532704944.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124543543-1532704944.png" class title="img">
 
 <p>向群组中增加消费者是横向伸缩消费能力的主要方式。总而言之，我们可以通过增加消费组的消费者来进行<code>水平扩展提升消费能力</code>。这也是为什么建议创建主题时使用比较多的分区数，这样可以在消费负载高的情况下增加消费者来提升性能。另外，消费者的数量不应该比分区数多，因为多出来的消费者是空闲的，没有任何帮助。</p>
 <p>Kafka 一个很重要的特性就是，只需写入一次消息，可以支持任意多的应用读取这个消息。换句话说，每个应用都可以读到全量的消息。为了使得每个应用都能读到全量消息，应用需要有不同的消费组。对于上面的例子，假如我们新增了一个新的消费组 G2，而这个消费组有两个消费者，那么就演变为下图这样</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124553311-1167412207.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124553311-1167412207.png" class title="img">
 
 <p>在这个场景中，消费组 G1 和消费组 G2 都能收到 T1 主题的全量消息，在逻辑意义上来说它们属于不同的应用。</p>
 <p><strong>总结起来就是如果应用需要读取全量消息，那么请为该应用设置一个消费组；如果该应用消费能力不足，那么可以考虑在这个消费组里增加消费者</strong>。</p>
@@ -608,7 +615,7 @@
 <li>一个主题中的消息被多个消费者群组共同消费，这种消费模式又称为<code>发布-订阅</code>模式</li>
 </ul>
 <h4 id="消费者重平衡"><a href="#消费者重平衡" class="headerlink" title="消费者重平衡"></a>消费者重平衡</h4><p>我们从上面的<code>消费者演变图</code>中可以知道这么一个过程：最初是一个消费者订阅一个主题并消费其全部分区的消息，后来有一个消费者加入群组，随后又有更多的消费者加入群组，而新加入的消费者实例<code>分摊</code>了最初消费者的部分消息，这种把分区的所有权通过一个消费者转到其他消费者的行为称为<code>重平衡</code>，英文名也叫做 <code>Rebalance</code> 。如下图所示</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124603277-431025951.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124603277-431025951.png" class title="img">
 
 <p>重平衡非常重要，它为消费者群组带来了<code>高可用性</code> 和 <code>伸缩性</code>，我们可以放心的添加消费者或移除消费者，不过在正常情况下我们并不希望发生这样的行为。在重平衡期间，消费者无法读取消息，造成整个消费者组在重平衡的期间都不可用。另外，当分区被重新分配给另一个消费者时，消息当前的读取状态会丢失，它有可能还需要去刷新缓存，在它重新恢复状态之前会拖慢应用程序。</p>
 <p>消费者通过向<code>组织协调者</code>（Kafka Broker）发送心跳来维护自己是消费者组的一员并确认其拥有的分区。对于不同不的消费群体来说，其组织协调者可以是不同的。只要消费者定期发送心跳，就会认为消费者是存活的并处理其分区中的消息。当消费者检索记录或者提交它所消费的记录时就会发送心跳。</p>
@@ -689,10 +696,10 @@
 <h3 id="提交和偏移量的概念"><a href="#提交和偏移量的概念" class="headerlink" title="提交和偏移量的概念"></a>提交和偏移量的概念</h3><h4 id="特殊偏移"><a href="#特殊偏移" class="headerlink" title="特殊偏移"></a>特殊偏移</h4><p>我们上面提到，消费者在每次调用<code>poll()</code> 方法进行定时轮询的时候，会返回由生产者写入 Kafka 但是还没有被消费者消费的记录，因此我们可以追踪到哪些记录是被群组里的哪个消费者读取的。消费者可以使用 Kafka 来追踪消息在分区中的位置（偏移量）</p>
 <p>消费者会向一个叫做 <code>_consumer_offset</code> 的特殊主题中发送消息，这个主题会保存每次所发送消息中的分区偏移量，这个主题的主要作用就是消费者触发重平衡后记录偏移使用的，消费者每次向这个主题发送消息，正常情况下不触发重平衡，这个主题是不起作用的，当触发重平衡后，消费者停止工作，每个消费者可能会分到对应的分区，这个主题就是让消费者能够继续处理消息所设置的。</p>
 <p>如果提交的偏移量小于客户端最后一次处理的偏移量，那么位于两个偏移量之间的消息就会被重复处理</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124619917-951347964.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124619917-951347964.png" class title="img">
 
 <p>如果提交的偏移量大于最后一次消费时的偏移量，那么处于两个偏移量中间的消息将会丢失</p>
-<img src="/2023/11/25/kafka-introduction/1515111-20191128124627673-1587568519.png" class title="img">
+<img src="/2023/10/25/kafka-introduction/1515111-20191128124627673-1587568519.png" class title="img">
 
 <p>既然<code>_consumer_offset</code> 如此重要，那么它的提交方式是怎样的呢？下面我们就来说一下####提交方式</p>
 <p>KafkaConsumer API 提供了多种方式来提交偏移量</p>
@@ -720,11 +727,14 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2023/11/24/rocketmq-installation-document/" rel="prev" title="rocketmq installation document">
-                  <i class="fa fa-chevron-left"></i> rocketmq installation document
+                <a href="/2023/09/08/how-to-solve-the-problem-of-excessive-buffer-cache-usage-in-Linux/" rel="prev" title="如何解决Linux中buff-cache占用过高">
+                  <i class="fa fa-chevron-left"></i> 如何解决Linux中buff-cache占用过高
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2023/11/21/Comparison-of-properties-between-B-tree-and-B-tree/" rel="next" title="B树和B+树性质对比">
+                  B树和B+树性质对比 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
