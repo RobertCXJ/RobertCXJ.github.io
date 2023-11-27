@@ -20,12 +20,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="产生重复消费的场景和解决方案 本章概括  分布式事务由何而来我们在使用MQ在解决实际业务场景中的问题时，往往伴随诸多问题！比如如下图   上述两种可能都会导致数据不一致，在业务系统中是 致命的问题！ 这个时候我们就要保证事务消息。要不全部成功，要不全部失败。来达到订单服务，购物车服务的数据一致性！ 对于购物车服务收到订单创建成功消息清理购物车这个操作来说，失败的处理比较简单，只要成功执行购物车清理">
+    <meta name="description" content="产生重复消费的场景和解决方案">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RocketMQ消息丢失，消息一致性，重复消费解决方案">
 <meta property="og:url" content="https://robertchen.cn/2023/11/26/RocketMQ-message-loss-message-consistency-and-repeated-consumption-solutions/index.html">
 <meta property="og:site_name" content="Robert&#39;s blog">
-<meta property="og:description" content="产生重复消费的场景和解决方案 本章概括  分布式事务由何而来我们在使用MQ在解决实际业务场景中的问题时，往往伴随诸多问题！比如如下图   上述两种可能都会导致数据不一致，在业务系统中是 致命的问题！ 这个时候我们就要保证事务消息。要不全部成功，要不全部失败。来达到订单服务，购物车服务的数据一致性！ 对于购物车服务收到订单创建成功消息清理购物车这个操作来说，失败的处理比较简单，只要成功执行购物车清理">
+<meta property="og:description" content="产生重复消费的场景和解决方案">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://robertchen.cn/2023/11/26/RocketMQ-message-loss-message-consistency-and-repeated-consumption-solutions/6248a89027f86abb2aecf881.jpg">
 <meta property="og:image" content="https://robertchen.cn/2023/11/26/RocketMQ-message-loss-message-consistency-and-repeated-consumption-solutions/624890bb27f86abb2ad47e14.jpg">
@@ -271,6 +271,8 @@
     
     <div class="post-body" itemprop="articleBody">
         <p>产生重复消费的场景和解决方案</p>
+<span id="more"></span>
+
 <h2 id="本章概括"><a href="#本章概括" class="headerlink" title="本章概括"></a>本章概括</h2><img src="/2023/11/26/RocketMQ-message-loss-message-consistency-and-repeated-consumption-solutions/6248a89027f86abb2aecf881.jpg" class title="img">
 
 <h2 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h2><h3 id="由何而来"><a href="#由何而来" class="headerlink" title="由何而来"></a>由何而来</h3><p>我们在使用MQ在解决实际业务场景中的问题时，往往伴随诸多问题！比如如下图</p>
