@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0-rc2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/sun-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/sun-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/sun-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"robertchen.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="二分查找-红蓝染色法总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二分查找总结">
+<meta property="og:url" content="https://robertchen.cn/2023/11/28/binary-search-summary/index.html">
+<meta property="og:site_name" content="Robert&#39;s blog">
+<meta property="og:description" content="二分查找-红蓝染色法总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://robertchen.cn/2023/11/28/binary-search-summary/image-20231128164541981.png">
+<meta property="article:published_time" content="2023-11-28T09:27:08.000Z">
+<meta property="article:modified_time" content="2023-11-28T09:27:08.000Z">
+<meta property="article:author" content="Robert">
+<meta property="article:tag" content="Leetcode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://robertchen.cn/2023/11/28/binary-search-summary/image-20231128164541981.png">
+
+
+<link rel="canonical" href="https://robertchen.cn/2023/11/28/binary-search-summary/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://robertchen.cn/2023/11/28/binary-search-summary/","path":"2023/11/28/binary-search-summary/","title":"二分查找总结"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>二分查找总结 | Robert's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Robert's blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">热爱可抵岁月漫长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-columns"><a href="/columns/" rel="section"><i class="fa fa-folder-open fa-fw"></i>专栏</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-calendar fa-fw"></i>相册</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE-%E7%BA%A2%E8%93%9D%E6%9F%93%E8%89%B2%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">二分查找-红蓝染色法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E9%97%AD%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">开闭区间问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#34-%E5%9C%A8%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%9F%A5%E6%89%BE%E5%85%83%E7%B4%A0%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%92%8C%E6%9C%80%E5%90%8E%E4%B8%80%E4%B8%AA%E4%BD%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">34.在排序数组中查找元素的第一个和最后一个位置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%9E-gt-x3D-k-%E9%97%AE%E9%A2%98%E5%A6%82%E4%BD%95%E8%BD%AC%E5%8C%96-%E5%9C%A8%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E9%97%AE%E9%A2%98%E4%B8%AD"><span class="nav-number">1.2.1.</span> <span class="nav-text">非&gt;&#x3D; k 问题如何转化(在有序数组问题中)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#162-%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC"><span class="nav-number">1.3.</span> <span class="nav-text">162.寻找峰值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#153-%E5%AF%BB%E6%89%BE%E6%97%8B%E8%BD%AC%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.</span> <span class="nav-text">153. 寻找旋转排序数组中的最小值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#154-%E5%AF%BB%E6%89%BE%E6%97%8B%E8%BD%AC%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E5%B0%8F%E5%80%BC-II"><span class="nav-number">1.5.</span> <span class="nav-text">154. 寻找旋转排序数组中的最小值 II</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#33-%E6%90%9C%E7%B4%A2%E6%97%8B%E8%BD%AC%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84"><span class="nav-number">1.6.</span> <span class="nav-text">33. 搜索旋转排序数组</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Robert"
+      src="/images/spike.jpg">
+  <p class="site-author-name" itemprop="name">Robert</p>
+  <div class="site-description" itemprop="description">人生如逆旅 我亦是行人</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://robertchen.cn/2023/11/28/binary-search-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/spike.jpg">
+      <meta itemprop="name" content="Robert">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Robert's blog">
+      <meta itemprop="description" content="人生如逆旅 我亦是行人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="二分查找总结 | Robert's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          二分查找总结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-28 17:27:08" itemprop="dateCreated datePublished" datetime="2023-11-28T17:27:08+08:00">2023-11-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Leetcode/" itemprop="url" rel="index"><span itemprop="name">Leetcode</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>二分查找-红蓝染色法总结</p>
+<span id="more"></span>
+
+<h2 id="二分查找-红蓝染色法"><a href="#二分查找-红蓝染色法" class="headerlink" title="二分查找-红蓝染色法"></a>二分查找-红蓝染色法</h2><p>L, R分别指向数组的左右边界及闭区间[L,R],红色背景表示不满足条件，蓝色表示满足条件，白色表示不确定</p>
+<h3 id="开闭区间问题"><a href="#开闭区间问题" class="headerlink" title="开闭区间问题"></a>开闭区间问题</h3><p>闭区间（常用）：[0, nums.length - 1]  退出二分查找需要left &lt;&#x3D; right, 移动区间时 left &#x3D; mid + 1, right &#x3D; mid - 1,这样才不会出现死循环。</p>
+<p>左闭右开：[0, nums.length) 退出二分查找需要left &lt; right, 移动区间时 left &#x3D; mid + 1, right &#x3D; mid</p>
+<p>开区间：(-1, nums.length) 退出二分查找需要left+1 &lt; right, 移动区间时 left &#x3D; mid, right &#x3D; mid</p>
+<h3 id="34-在排序数组中查找元素的第一个和最后一个位置"><a href="#34-在排序数组中查找元素的第一个和最后一个位置" class="headerlink" title="34.在排序数组中查找元素的第一个和最后一个位置"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/">34.在排序数组中查找元素的第一个和最后一个位置</a></h3><p>思想：使用二分查找去查找target的第一个位置，如果第一个满足位置是数组长度说明整个数组都是红色，或者返回的值不等于target，不符合条件。再使用二分查找去找target+1的前一个位置。</p>
+<p>二分查找（红蓝染色）的思想：利用数组有序的性质，从左右两端开始快速查找符合的target范围，如果nums[mid]小于target，left&#x3D;mid+1，从右侧开始查找，反之亦然，找到符合条件的第一个target位置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] searchRange(<span class="type">int</span>[] nums, <span class="type">int</span> target) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">start</span> <span class="operator">=</span> lowerBound(nums, target);</span><br><span class="line">        <span class="keyword">if</span>(start == nums.length || nums[start] != target) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;-<span class="number">1</span>, -<span class="number">1</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">end</span> <span class="operator">=</span> lowerBound(nums, target+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;start, end -<span class="number">1</span>&#125;;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="title function_">lowerBound</span><span class="params">(<span class="type">int</span>[] nums, <span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> <span class="number">0</span>, right = nums.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(left &lt;= right) &#123;</span><br><span class="line">            mid = left + (right - left) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(nums[mid] &lt; target) &#123;</span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                right = mid - <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="非-gt-x3D-k-问题如何转化-在有序数组问题中"><a href="#非-gt-x3D-k-问题如何转化-在有序数组问题中" class="headerlink" title="非&gt;&#x3D; k 问题如何转化(在有序数组问题中)"></a>非&gt;&#x3D; k 问题如何转化(在有序数组问题中)</h4><p>“&gt;k”可以看作是&gt;&#x3D; k+1</p>
+<p>“&lt;k”可以看作 (&gt;&#x3D;k) -1,即找到大于等于k的位置的前一个位置</p>
+<p>“&lt;&#x3D;k”可以看作(&gt;k) -1,即找到大于k的位置的前一个位置</p>
+<h3 id="162-寻找峰值"><a href="#162-寻找峰值" class="headerlink" title="162.寻找峰值"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-peak-element/">162.寻找峰值</a></h3><p>蓝色是峰值及其右侧，right &#x3D; nums.length - 1, nums[right]一定是蓝色，预留这个位置</p>
+<p>每次二分确定一半的颜色</p>
+<p>简单来说就是当有nums[mid] &gt; nums[mid + 1]就能确定是一个下坡，至少有一个峰值，如果nums[mid]之前是上坡，那么nums[mid]就是峰值，nums[mid]之前是下坡，也能确定一个峰值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findPeakElement</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> -<span class="number">1</span>, right = nums.length - <span class="number">1</span>; <span class="comment">// 开区间 (-1, n-1)</span></span><br><span class="line">        <span class="keyword">while</span> (left + <span class="number">1</span> &lt; right) &#123; <span class="comment">// 开区间不为空</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> left + (right - left) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (nums[mid] &gt; nums[mid + <span class="number">1</span>]) right = mid; <span class="comment">// 蓝色</span></span><br><span class="line">            <span class="keyword">else</span> left = mid; <span class="comment">// 红色</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> right;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="153-寻找旋转排序数组中的最小值"><a href="#153-寻找旋转排序数组中的最小值" class="headerlink" title="153. 寻找旋转排序数组中的最小值"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/">153. 寻找旋转排序数组中的最小值</a></h3><p>red:最小值左侧</p>
+<p>blue:最小值及其右侧</p>
+<p>5 6 7 8 2 3 4</p>
+<p>num[right]一定是蓝色，大于等于num[right]肯定要舍弃染成红色，最小值肯定小于num[right]，选择左侧区域寻找</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findMin</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> -<span class="number">1</span>, right = nums.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(left+<span class="number">1</span> &lt; right) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> left + (right - left) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(nums[mid] &lt; nums[right])&#123;</span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                left = mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums[right];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="154-寻找旋转排序数组中的最小值-II"><a href="#154-寻找旋转排序数组中的最小值-II" class="headerlink" title="154. 寻找旋转排序数组中的最小值 II"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array-ii/">154. 寻找旋转排序数组中的最小值 II</a></h3><p>本题与 153 的区别在于有相同元素，这会导致在二分查找时，可能会遇到「恰好」二分元素与数组末尾元素相同的情况，此时无法确定答案在左半区间还是右半区间。</p>
+<p>我们接着 153 题解 的代码来实现。本题需要稍加修改，改为与区间右端点处的元素比较（如果你写的是闭区间的话，那就是与右端点 +1 的元素比较）。</p>
+<p>在遇到相同元素时，既然无法确定最小值所在区间，那么干脆去掉末尾元素，继续二分。对应到代码上，就是 right 减一</p>
+<p>你可能会有疑问：这样做不会碰巧把最小值给去掉吗？这是不会的：</p>
+<ul>
+<li>如果末尾元素就是最小值，那么nums[mid] 也是最小值，说明最小值仍然在二分区间中；</li>
+<li>如果末尾元素不是最小值，这样做相当于排除了一个错误答案。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findMin</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> -<span class="number">1</span>, right = nums.length - <span class="number">1</span>; <span class="comment">// 开区间 (-1, n-1)</span></span><br><span class="line">        <span class="keyword">while</span> (left + <span class="number">1</span> &lt; right) &#123; <span class="comment">// 开区间不为空</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> (left + right) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (nums[mid] &lt; nums[right]) right = mid; <span class="comment">// 蓝色</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &gt; nums[right]) left = mid; <span class="comment">// 红色</span></span><br><span class="line">            <span class="keyword">else</span> --right;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums[right];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="33-搜索旋转排序数组"><a href="#33-搜索旋转排序数组" class="headerlink" title="33. 搜索旋转排序数组"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/search-in-rotated-sorted-array/">33. 搜索旋转排序数组</a></h3><p>red:目标target左侧</p>
+<p>blue:目标target及其右侧</p>
+<img src="/2023/11/28/binary-search-summary/image-20231128164541981.png" class title="image-20231128164541981">
+
+<p>当nums[mid]&gt;end时，在左侧：</p>
+<ul>
+<li>nums[mid ] &gt; target 可以缩小蓝色区间， right&#x3D;mid</li>
+</ul>
+<p>当nums[mid]&lt;end时，在右侧：</p>
+<ul>
+<li>当nums[mid]已经在右侧，target&gt;end说明target还在左侧，即可缩小蓝色区间</li>
+<li>当nums[mid] &gt; target,与第一种情况同理</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">search</span><span class="params">(<span class="type">int</span>[] nums, <span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> -<span class="number">1</span>, right = nums.length - <span class="number">1</span>; <span class="comment">// 开区间 (-1, n-1)</span></span><br><span class="line">        <span class="keyword">while</span> (left + <span class="number">1</span> &lt; right) &#123; <span class="comment">// 开区间不为空</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> left + (right - left) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (isBlue(nums, target, mid)) right = mid; <span class="comment">// 蓝色</span></span><br><span class="line">            <span class="keyword">else</span> left = mid; <span class="comment">// 红色</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums[right] == target ? right : -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">isBlue</span><span class="params">(<span class="type">int</span>[] nums, <span class="type">int</span> target, <span class="type">int</span> mid)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">end</span> <span class="operator">=</span> nums[nums.length - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &gt; end) &#123;</span><br><span class="line">            <span class="keyword">return</span> target &gt; end &amp;&amp; nums[i] &gt;= target;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> target &gt; end || nums[i] &gt;= target;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Leetcode/" rel="tag"><i class="fa fa-tag"></i> Leetcode</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/26/RocketMQ-message-loss-message-consistency-and-repeated-consumption-solutions/" rel="prev" title="RocketMQ消息丢失，消息一致性，重复消费解决方案">
+                  <i class="fa fa-chevron-left"></i> RocketMQ消息丢失，消息一致性，重复消费解决方案
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="beian"><a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">鄂ICP备2022009952号 </a>
+  </div>
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Robert</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script><script src="/js/code-unfold.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
